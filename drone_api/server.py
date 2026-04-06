@@ -8,11 +8,12 @@ from collections import deque
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
-from hardware.px4_bridge import PX4Bridge
+from tasks.px4_bridge_stub import PX4Bridge
 
 
 # =========================================================
