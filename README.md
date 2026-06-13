@@ -65,21 +65,6 @@ DroneOS is a software mission and operator layer that sits above PX4 (the flight
 
 DroneOS is **not a flight-critical system** and is **not a replacement for PX4**. PX4 remains the flight authority. Real drone flight requires hardware validation, no-props bench testing, failsafe configuration, operator supervision, and legal/regulatory compliance. See [Safety Notes](docs/safety_notes.md) for details.
 
-## Repository Structure
-
-```
-ONEL-Dynamics-DroneOS-Overview/
-├── README.md                          # This file
-├── docs/
-│   ├── current_status.md             # Readiness assessment
-│   ├── architecture_overview.md       # System design and vision
-│   ├── roadmap.md                    # Development stages
-│   ├── collaboration.md              # Collaboration guidelines
-│   └── safety_notes.md               # Safety and operational requirements
-├── drone_api/                        # Backend API implementation
-├── drone_core/                       # Core mission and planning modules
-└── tasks/                            # Utilities and development tasks
-```
 
 ## Questions?
 
