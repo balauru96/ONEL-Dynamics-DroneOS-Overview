@@ -85,21 +85,6 @@ ONEL-Dynamics-DroneOS-Overview/
 
 For collaboration inquiries, technical questions, or partnership discussions, please refer to [Collaboration Guidelines](docs/collaboration.md).
 
-## Repository Layout
-
-```text
-.
-├── drone_api/
-│   └── server.py              # FastAPI prototype and in-memory state
-├── drone_core/
-│   ├── path_service.py        # Simple circular-zone detour prototype
-│   └── planner.py             # Experimental grid/A* mission planner
-├── droneos-collab-path        # Unconfigured gitlink entry
-├── tasks/
-│   └── px4_bridge_stub.py     # Async development stub, not real PX4 I/O
-├── .gitignore
-└── README.md
-```
 
 There are no additional README files in the current repository.
 
