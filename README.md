@@ -1,140 +1,240 @@
-🚁 DroneOS
+# DroneOS Collab Path
 
-DroneOS is a modular software platform for autonomous drone missions, designed for real-time control, mission planning, and edge-based data processing.
+DroneOS Collab Path is an early-stage collaboration repository for exploring
+mission path planning, no-fly-zone avoidance, and the API boundary between
+DroneOS and a future PX4/MAVLink integration.
 
-Built with a focus on reliability, modularity, and local-first operation, DroneOS enables drones to execute missions safely—even under unstable connection conditions.
+> **Warning**
+>
+> This repository is **not production-ready** and has not been validated for
+> real drone flight. Do not use it to command real aircraft or run real
+> missions without a separate engineering review, simulation testing,
+> hardware-in-the-loop validation, regulatory review, and appropriate
+> operational safety controls.
 
----
+## Current Status
 
-✨ Key Features
+This repository is a prototype and collaboration snapshot, not a complete
+DroneOS distribution.
 
-🧭 Mission Planning
+Implemented or represented in the current tree:
 
-- Waypoint-based missions (survey, patrol, inspection, agriculture)
-- Dynamic mission generation
-- Real-time path preview
+- A FastAPI application with in-memory drone state, telemetry snapshots,
+  WebSocket broadcasting, mission-related endpoints, and flight history
+  logging.
+- Simple generated mission shapes for survey, patrol, inspection, and
+  agriculture examples.
+- Basic circular no-fly-zone checks and direct path previews.
+- An experimental `PathService` that can generate one detour around a circular
+  no-fly zone.
+- An experimental grid-based A* mission planner with path smoothing and example
+  mission-pattern generators.
+- An asynchronous PX4 bridge stub for development and interface exploration.
 
-🛰 PX4 Integration (MAVSDK)
+Experimental, incomplete, or not integrated:
 
-- Full mission upload and execution
-- Takeoff, land, RTL (Return-To-Launch)
-- Live telemetry synchronization
+- The modules in `drone_core/` are not currently connected to the FastAPI
+  application.
+- The A* planner is prototype code and requires correction and testing before
+  use.
+- The PX4 bridge is a stub, not a real MAVSDK or MAVLink implementation, and
+  its interface does not fully match every method expected by the API.
+- The API defaults to `USE_PX4 = True`, but this currently selects the stub; it
+  does not establish a real PX4/MAVLink connection.
+- The referenced dashboard file (`drone_api/web/dashboard.html`) is not present,
+  so `/` and `/dashboard` are incomplete.
+- No dependency lock file, package manifest, automated tests, CI workflow, or
+  Docker configuration is included.
+- The `droneos-collab-path` entry is recorded as a gitlink, but the repository
+  has no `.gitmodules` mapping. It is not currently a usable submodule.
 
-🔁 Connection Resilience
+## Repository Layout
 
-- Automatic reconnect to PX4
-- No UI freeze or backend crash on disconnect
-- Safe state recovery
+```text
+.
+├── drone_api/
+│   └── server.py              # FastAPI prototype and in-memory state
+├── drone_core/
+│   ├── path_service.py        # Simple circular-zone detour prototype
+│   └── planner.py             # Experimental grid/A* mission planner
+├── droneos-collab-path        # Unconfigured gitlink entry
+├── tasks/
+│   └── px4_bridge_stub.py     # Async development stub, not real PX4 I/O
+├── .gitignore
+└── README.md
+```
 
-🗺 Interactive Dashboard
+There are no additional README files in the current repository.
 
-- Real-time map visualization
-- Live telemetry (position, battery, altitude, mode)
-- Mission execution tracking
+## DroneOS Architecture Context
 
-🚫 Geofencing / No-Fly Zones
+DroneOS is intended to operate as a mission and operator layer above PX4:
 
-- Define restricted areas
-- Prevent invalid mission planning
+```text
+Operator UI / Mission Tools
+            |
+DroneOS mission, telemetry, reporting, and coordination services
+            |
+Vehicle integration boundary (future Vehicle Agent / Field Box)
+            |
+PX4 autopilot and its validated flight-safety mechanisms
+```
 
-📡 Live Telemetry Streaming
+PX4 remains the flight authority. DroneOS should plan missions, present
+telemetry, support operator workflows, and coordinate higher-level services;
+it must not bypass PX4 arming checks, flight modes, failsafes, geofencing, or
+other safety controls.
 
-- WebSocket-based real-time updates
-- Flight history logging
+The wider ONEL Dynamics direction may include a Field Box, Vehicle Agent, AI
+vision, solar-inspection reporting, and cloud or analytics services. Those
+systems are future architecture context, not implemented capabilities of this
+repository. Changes here should remain focused on collaboration and
+path-planning experiments unless a broader scope is agreed first.
 
----
+## Local Setup
 
-🧱 Architecture
+Python 3.9 or newer is recommended. The repository does not currently declare
+or pin its dependencies; the API source directly requires FastAPI, and Uvicorn
+is useful for local serving.
 
-DroneOS is built as a modular system:
+```bash
+git clone <repository-url>
+cd DroneOS-collab-path
 
-UI (Dashboard)
-   ↓
-FastAPI Backend (Mission, State, Control)
-   ↓
-PX4 Bridge (MAVSDK)
-   ↓
-PX4 Autopilot (Simulation / Real Drone)
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install fastapi uvicorn
+```
 
----
+For local inspection only, start the API from the repository root:
 
-🚀 Getting Started
+```bash
+uvicorn drone_api.server:app --reload
+```
 
-1. Start PX4 (SITL)
+Useful endpoints include:
 
-cd PX4-Autopilot
-make px4_sitl gazebo
+- `http://127.0.0.1:8000/docs` for generated API documentation.
+- `http://127.0.0.1:8000/api/status` for a small status snapshot.
+- `http://127.0.0.1:8000/state` for the current in-memory state.
 
-2. Start Backend
+Do not treat a successful server start or stub connection as proof of PX4
+connectivity or flight readiness. The dashboard routes currently reference a
+missing file.
 
-cd ONEL_DYNAMICS_PROJECT
-uvicorn server:app --reload
+## Basic Checks
 
-3. Open Dashboard
+There is no automated test suite at present. The available repository-level
+checks are limited to Python syntax compilation and Git whitespace checks:
 
-http://127.0.0.1:8000/dashboard
+```bash
+python3 -m compileall -q drone_api drone_core tasks
+git diff --check
+git status --short
+```
 
----
+Any planner, mission, safety, or vehicle-integration change should add focused
+tests before it is considered ready to merge. Simulation and manual validation
+notes should be included in the pull request.
 
-🎬 Demo Capabilities
+## PX4 / MAVLink Notes
 
-DroneOS currently supports:
+- `tasks/px4_bridge_stub.py` simulates delays and a small amount of state; it
+  does not use MAVSDK, MAVLink, a serial link, UDP, or a real PX4 vehicle.
+- API labels such as `PX4`, connection state, arm, takeoff, land, and RTL do not
+  demonstrate a validated end-to-end autopilot integration.
+- The server and bridge currently disagree on some method names and telemetry
+  fields. This boundary must be defined and tested before integration work.
+- New vehicle commands must preserve PX4 as the final flight authority and
+  must be tested in PX4 SITL before any hardware consideration.
+- Never disable or work around PX4 pre-arm checks, failsafes, geofences, RTL,
+  or operator control requirements from this layer.
 
-- Autonomous mission execution
-- Real-time control via dashboard
-- Automatic reconnect during mission (fault tolerance)
-- Live telemetry visualization
-- Return-to-launch (RTL) behavior
+## Safety Notes
 
----
+Path generation in this repository is advisory prototype logic. A geometrically
+valid path is not necessarily a safe or flyable path. Validation must account
+for altitude, terrain, structures, weather, vehicle performance, GPS quality,
+link loss, battery reserve, local airspace, regulations, emergency procedures,
+and PX4 configuration.
 
-⚙️ Tech Stack
+No-fly-zone handling is currently simplified and must not be treated as a
+certified geofence or collision-avoidance system.
 
-- Backend: FastAPI (Python)
-- Drone Communication: MAVSDK / MAVLink
-- Autopilot: PX4
-- Frontend: HTML / JavaScript dashboard
-- Simulation: Gazebo
+## Known Limitations
 
----
+- Early-stage collaboration repository with incomplete integration boundaries.
+- Not validated for real hardware flight.
+- Safety, geofence, path, and mission validation may be incomplete or
+  internally inconsistent.
+- Planner prototypes are not wired into the API and have no automated coverage.
+- No production security guarantees, authentication, authorization, hardened
+  configuration, or secrets-management design.
+- In-memory state and permissive CORS are development conveniences, not
+  production architecture.
+- Flight-history files are local development logs and are not a complete audit
+  or reporting system.
+- Future integration into the main DroneOS codebase requires careful interface,
+  safety, security, and ownership review.
 
-🧠 Design Principles
+## Collaboration Rules
 
-- Local-first processing (no dependency on cloud)
-- Modular architecture (UI, backend, bridge separation)
-- Fault tolerance (reconnect & recovery mechanisms)
-- Real-time responsiveness
+- Work on a separate branch for every change.
+- Do not push directly to `main`.
+- Do not modify mission or flight-safety logic without review.
+- Do not add large features without discussing and agreeing on scope.
+- Keep commits focused, understandable, and documented.
+- Open a pull request with a clear description of behavior and risk.
+- Include automated test results or explicit manual validation notes.
+- Do not commit secrets, tokens, `.env` files, private logs, credentials, keys,
+  or vehicle connection details.
 
----
+## Recommended Contributor Workflow
 
-📍 Current Status
+```bash
+# Check the starting state
+git status
 
-- ✅ PX4 integration complete
-- ✅ Mission planning & execution
-- ✅ Telemetry synchronization
-- ✅ Reconnect handling
-- 🔧 Ongoing: stabilization & real-world deployment
+# Create a focused branch
+git switch -c feature/short-description
 
----
+# Make and review changes
+git diff
 
-🎯 Vision
+# Run the available checks
+python3 -m compileall -q drone_api drone_core tasks
+git diff --check
 
-DroneOS aims to become a sovereign European platform for autonomous drone operations, enabling:
+# Commit the focused change
+git add <changed-files>
+git commit -m "Describe the change"
 
-- Secure local data processing (Edge AI)
-- Industrial inspection workflows
-- Scalable fleet management (future cloud layer)
-- Modular hardware integration
+# Push the branch
+git push -u origin feature/short-description
 
----
+# Open a pull request through the Git hosting interface or CLI
+gh pr create --fill
+```
 
-👤 Author
+Before requesting review, explain what changed, why it changed, what was tested,
+what was not tested, and whether mission, PX4, MAVLink, safety, or API behavior
+could be affected.
 
-Onel Ionut
-Founder, ONEL Dynamics
+## Do Not
 
----
+- Do not run real drone missions from this repository.
+- Do not commit credentials or private operational data.
+- Do not bypass PX4 safety mechanisms or flight authority.
+- Do not merge untested mission or vehicle-command code.
+- Do not change core architecture or safety assumptions without documenting and
+  reviewing them.
+- Do not interpret prototype API responses, generated paths, or stub telemetry
+  as evidence that a vehicle is safe to arm or fly.
 
-📄 License
+## License
 
-Private / Proprietary (for now)
+The previous project documentation described the repository as private and
+proprietary. No standalone license file is currently present. Confirm usage,
+distribution, and contribution terms with ONEL Dynamics before reusing this
+code outside the authorized collaboration context.
