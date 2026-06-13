@@ -1,52 +1,89 @@
-# DroneOS Collab Path
+# ONEL Dynamics – DroneOS Overview
 
-DroneOS Collab Path is an early-stage collaboration repository for exploring
-mission path planning, no-fly-zone avoidance, and the API boundary between
-DroneOS and a future PX4/MAVLink integration.
+## Project Overview
 
-> **Warning**
->
-> This repository is **not production-ready** and has not been validated for
-> real drone flight. Do not use it to command real aircraft or run real
-> missions without a separate engineering review, simulation testing,
-> hardware-in-the-loop validation, regulatory review, and appropriate
-> operational safety controls.
+**ONEL Dynamics** develops **DroneOS**, a local-first mission/operator layer for PX4-based drones, focused on Field Box deployment, mission workflows, telemetry, reporting, and future solar inspection support.
+
+### What is DroneOS?
+
+DroneOS is a software mission and operator layer that sits above PX4 (the flight stack). It provides:
+
+- **Mission Coordination**: Mission planning, execution, and cancellation
+- **Telemetry & State Monitoring**: Real-time vehicle state visibility and monitoring
+- **Operator Dashboard**: Local-first operator interface for mission supervision
+- **Structured Reporting**: Flight history, mission outcomes, and diagnostic reporting
+- **Field Box Deployment**: Docker-based edge compute platform for autonomous operations
+- **Future Extensions**: Solar inspection workflows, Vehicle Agent (onboard communication), and AI vision capabilities
+
+### Important Note
+
+**This is an overview/presentation repository**, not the private development repository. It is designed to be safe for presentations, collaboration discussions, grant conversations, and future technical partnerships.
 
 ## Current Status
 
-This repository is a prototype and collaboration snapshot, not a complete
-DroneOS distribution.
+**Lab/SITL Stabilization Phase** – DroneOS-Lab is actively being developed as a prototype and field box stabilization system.
 
-Implemented or represented in the current tree:
+### What Has Been Validated
 
-- A FastAPI application with in-memory drone state, telemetry snapshots,
-  WebSocket broadcasting, mission-related endpoints, and flight history
-  logging.
-- Simple generated mission shapes for survey, patrol, inspection, and
-  agriculture examples.
-- Basic circular no-fly-zone checks and direct path previews.
-- An experimental `PathService` that can generate one detour around a circular
-  no-fly zone.
-- An experimental grid-based A* mission planner with path smoothing and example
-  mission-pattern generators.
-- An asynchronous PX4 bridge stub for development and interface exploration.
+- Backend and dashboard flow in Docker containers
+- PX4 SITL connection and telemetry/state monitoring
+- Mission workflow execution in simulator
+- Report generation and flight history tracking
+- Field Box health check and diagnostic direction
+- **Recovery principle**: If DroneOS or the backend is unavailable, PX4 remains capable of safe recovery and landing through PX4/operator control
 
-Experimental, incomplete, or not integrated:
+### What Is Not Ready
 
-- The modules in `drone_core/` are not currently connected to the FastAPI
-  application.
-- The A* planner is prototype code and requires correction and testing before
-  use.
-- The PX4 bridge is a stub, not a real MAVSDK or MAVLink implementation, and
-  its interface does not fully match every method expected by the API.
-- The API defaults to `USE_PX4 = True`, but this currently selects the stub; it
-  does not establish a real PX4/MAVLink connection.
-- The referenced dashboard file (`drone_api/web/dashboard.html`) is not present,
-  so `/` and `/dashboard` are incomplete.
-- No dependency lock file, package manifest, automated tests, CI workflow, or
-  Docker configuration is included.
-- The `droneos-collab-path` entry is recorded as a gitlink, but the repository
-  has no `.gitmodules` mapping. It is not currently a usable submodule.
+- **Not production-ready**: Lab/SITL testing only
+- **Not certified**: No regulatory validation or approval
+- **Real flight**: Not yet validated with real hardware or aircraft
+- **Commercial**: Early-stage development
+
+## Public-Safe Roadmap
+
+| Stage | Description | Status |
+|-------|-------------|--------|
+| 1 | Lab/SITL stabilization | In progress |
+| 2 | Docker Field Box flow | In progress |
+| 3 | Jetson Field Box validation | Pending |
+| 4 | PX4 hardware/no-props bench testing | Pending |
+| 5 | First controlled real flight | Not started |
+| 6 | Video/image capture and solar inspection MVP | Not started |
+| 7 | Vehicle Agent prototype | Future |
+| 8 | AI vision baseline | Future |
+| 9 | Cloud/analytics integration | Future |
+
+## Getting Started
+
+- **[Current Status](docs/current_status.md)** – Detailed readiness assessment and what has been validated
+- **[Architecture Overview](docs/architecture_overview.md)** – System design, layers, and future roadmap
+- **[Roadmap](docs/roadmap.md)** – Stage-by-stage development plan
+- **[Collaboration Guidelines](docs/collaboration.md)** – How to work with this repository
+- **[Safety Notes](docs/safety_notes.md)** – Critical safety and operational considerations
+
+## ⚠️ Safety Warning
+
+DroneOS is **not a flight-critical system** and is **not a replacement for PX4**. PX4 remains the flight authority. Real drone flight requires hardware validation, no-props bench testing, failsafe configuration, operator supervision, and legal/regulatory compliance. See [Safety Notes](docs/safety_notes.md) for details.
+
+## Repository Structure
+
+```
+ONEL-Dynamics-DroneOS-Overview/
+├── README.md                          # This file
+├── docs/
+│   ├── current_status.md             # Readiness assessment
+│   ├── architecture_overview.md       # System design and vision
+│   ├── roadmap.md                    # Development stages
+│   ├── collaboration.md              # Collaboration guidelines
+│   └── safety_notes.md               # Safety and operational requirements
+├── drone_api/                        # Backend API implementation
+├── drone_core/                       # Core mission and planning modules
+└── tasks/                            # Utilities and development tasks
+```
+
+## Questions?
+
+For collaboration inquiries, technical questions, or partnership discussions, please refer to [Collaboration Guidelines](docs/collaboration.md).
 
 ## Repository Layout
 
