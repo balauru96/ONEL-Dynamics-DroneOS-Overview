@@ -1,92 +1,106 @@
 # ONEL Dynamics – DroneOS Overview
 
-## Project Overview
+## What DroneOS Is
+DroneOS is a local-first operator/backend/dashboard layer above PX4. It runs on a Field Box edge node and coordinates mission planning, telemetry, reporting, and operator monitoring while PX4 remains the flight authority.
 
-**ONEL Dynamics** develops **DroneOS**, a local-first mission/operator layer for PX4-based drones, focused on Field Box deployment, mission workflows, telemetry, reporting, and future solar inspection support.
+## What Problem DroneOS Solves
+DroneOS provides a local mission coordination layer for PX4-based drones, including:
 
-### What is DroneOS?
+- mission planning and execution monitoring
+- local telemetry and vehicle state visibility
+- guided mission report generation
+- field-deployable edge dashboard access
+- a practical path toward solar inspection workflows
 
-DroneOS is a software mission and operator layer that sits above PX4 (the flight stack). It provides:
-
-- **Mission Coordination**: Mission planning, execution, and cancellation
-- **Telemetry & State Monitoring**: Real-time vehicle state visibility and monitoring
-- **Operator Dashboard**: Local-first operator interface for mission supervision
-- **Structured Reporting**: Flight history, mission outcomes, and diagnostic reporting
-- **Field Box Deployment**: Docker-based edge compute platform for autonomous operations
-- **Future Extensions**: Solar inspection workflows, Vehicle Agent (onboard communication), and AI vision capabilities
-
-### Important Note
-
-**This is an overview/presentation repository**, not the private development repository. It is designed to be safe for presentations, collaboration discussions, grant conversations, and future technical partnerships.
+## Current Engineering Baseline
+- 413 Python safety/backend tests
+- 12 dashboard JavaScript runtime tests
+- 425 combined deterministic safe tests
+- Dashboard runtime harness executes real production JavaScript extracted from `dashboard.html`
+- Node runtime is preferred, with GJS fallback as an alternate runtime
+- Validated PX4 SITL mission execution through dashboard flow
+- Docker/local Field Box direction only
+- Jetson Field Box hardware validation is pending
 
 ## Current Status
+**Advanced Lab/SITL + Field Box stabilization.**
 
-**Lab/SITL Stabilization Phase** – DroneOS-Lab is actively being developed as a prototype and field box stabilization system.
+- Lab/SITL validation completed for dashboard mission upload and PX4 workflow
+- PX4 remains the flight authority; DroneOS is the mission/operator layer
+- DroneOS Field Box runs backend and dashboard locally and connects to PX4
+- Docker should deploy only DroneOS backend/dashboard, not PX4 or Gazebo
+- Jetson Field Box deployment is the next major validation milestone
+- Not production-ready, not certified, not real-flight validated
 
-### What Has Been Validated
+## Validated Flow
+- mission plan upload via dashboard
+- external ARM accepted by PX4
+- TAKEOFF accepted by PX4
+- AUTO mission execution started
+- PX4 SITL executed a waypoint mission
+- dashboard displayed FLYING / MISSION / MISSION_EXECUTING / PX4 ACK TRUE
 
-- Backend and dashboard flow in Docker containers
-- PX4 SITL connection and telemetry/state monitoring
-- Mission workflow execution in simulator
-- Report generation and flight history tracking
-- Field Box health check and diagnostic direction
-- **Recovery principle**: If DroneOS or the backend is unavailable, PX4 remains capable of safe recovery and landing through PX4/operator control
+## Known Limitation
+- Battery telemetry can be unavailable in SITL; automatic RTL is disabled when battery telemetry is unavailable
 
-### What Is Not Ready
+## Field Box Direction
+A DroneOS Field Box is intended to:
 
-- **Not production-ready**: Lab/SITL testing only
-- **Not certified**: No regulatory validation or approval
-- **Real flight**: Not yet validated with real hardware or aircraft
-- **Commercial**: Early-stage development
+- host the backend and operator dashboard locally
+- connect to PX4 via MAVLink
+- provide local mission supervision, telemetry, and reporting
+- support token-authenticated local dashboard access
+- provide health checks, stale telemetry handling, and safety gating
+- keep PX4 as the flight control authority
 
-## Public-Safe Roadmap
+## Solar Inspection MVP Direction
+Initial product direction is solar inspection, with a two-stage workflow:
 
-| Stage | Description | Status |
-|-------|-------------|--------|
-| 1 | Lab/SITL stabilization | In progress |
-| 2 | Docker Field Box flow | In progress |
-| 3 | Jetson Field Box validation | Pending |
-| 4 | PX4 hardware/no-props bench testing | Pending |
-| 5 | First controlled real flight | Not started |
-| 6 | Video/image capture and solar inspection MVP | Not started |
-| 7 | Vehicle Agent prototype | Future |
-| 8 | AI vision baseline | Future |
-| 9 | Cloud/analytics integration | Future |
+1. Recon / mapping mission
+2. Post-flight local data transfer to Jetson Field Box
+3. Panel layout detection/mapping as a future baseline goal
+4. Inspection route generation
+5. Inspection mission execution
+6. Local report generation
 
-## Getting Started
+AI/thermal defect detection is future research and development, not yet validated.
 
-- **[Current Status](docs/current_status.md)** – Detailed readiness assessment and what has been validated
-- **[Architecture Overview](docs/architecture_overview.md)** – System design, layers, and future roadmap
-- **[Roadmap](docs/roadmap.md)** – Stage-by-stage development plan
-- **[Collaboration Guidelines](docs/collaboration.md)** – How to work with this repository
-- **[Safety Notes](docs/safety_notes.md)** – Critical safety and operational considerations
+## Repository Purpose
+This repository is a public-safe overview, not the private DroneOS-Lab development repository. It is intended for presentations, architecture summaries, partner discussions, and demonstration of high-level status.
 
-## ⚠️ Safety Warning
+## Repository Scope
+This repository is not:
 
-DroneOS is **not a flight-critical system** and is **not a replacement for PX4**. PX4 remains the flight authority. Real drone flight requires hardware validation, no-props bench testing, failsafe configuration, operator supervision, and legal/regulatory compliance. See [Safety Notes](docs/safety_notes.md) for details.
+- the source-of-truth development repository
+- a production deployment bundle
+- a validated real flight system
+- a security-certified product
+- a platform for operationally commanding real aircraft
 
-
-## Questions?
-
-For collaboration inquiries, technical questions, or partnership discussions, please refer to [Collaboration Guidelines](docs/collaboration.md).
+## Documentation
+- [Current Status](docs/current_status.md)
+- [Architecture Overview](docs/architecture_overview.md)
+- [Roadmap](docs/roadmap.md)
+- [Solar Inspection MVP](docs/solar_inspection_mvp.md)
+- [Collaboration Guidelines](docs/collaboration.md)
+- [Safety Notes](docs/safety_notes.md)
+- [Repository Scope](docs/repository_scope.md)
 
 ## Repository Structure
-
 ONEL-Dynamics-DroneOS-Overview/
 ├── README.md
 └── docs/
-    ├── current_status.md
     ├── architecture_overview.md
-    ├── roadmap.md
     ├── collaboration.md
-    └── safety_notes.md
+    ├── current_status.md
+    ├── roadmap.md
+    ├── repository_scope.md
+    ├── safety_notes.md
+    └── solar_inspection_mvp.md
 
-## Usage / Purpose
+## Public-Safe Notes
+This repository contains no DroneOS implementation source code, no production flight logic, no operational credentials, and no private DroneOS-Lab source code.
+It is intended for public-safe communication, grant reviewers, collaboration screening, and partner discussions.
 
-This repository is intended for public-safe project communication, presentations, grant discussions, collaboration planning, and partner conversations.
-
-It does not contain the private DroneOS-Lab development source code, operational secrets, internal deployment details, or production flight logic.
-
-## License / Usage
-
-No open-source license has been selected yet. Unless a license is added, all rights are reserved by ONEL Dynamics / Ionuț Onel. Do not reuse, redistribute, or treat this repository as open-source software without written permission.
+## License / Rights
+No open-source license has been selected yet. Unless a license is added, all rights are reserved by ONEL Dynamics / Ionuț Onel.
