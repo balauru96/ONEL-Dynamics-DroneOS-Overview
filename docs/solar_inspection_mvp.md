@@ -26,7 +26,7 @@ The solar inspection MVP is an initial product direction for DroneOS. It focuses
 ## What This MVP Does Not Include Yet
 - AI/thermal defect detection is future research and not yet validated
 - fully automated panel inspections with defect scoring
-- certified commercial inspection operations
+- commercial inspection operations readiness and certification
 - real flight validation with production aircraft
 
 ## Future Baseline Goals

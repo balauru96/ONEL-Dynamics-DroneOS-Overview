@@ -84,9 +84,23 @@ This repository is not:
 - [Solar Inspection MVP](docs/solar_inspection_mvp.md)
 - [Collaboration Guidelines](docs/collaboration.md)
 - [Safety Notes](docs/safety_notes.md)
+- [Repository Scope](docs/repository_scope.md)
 
-## Historical Stubs
-This repository may contain legacy or historical non-production stub code under `historical_stubs/`. These directories are not synchronized with the private DroneOS-Lab repository and must not be used for real flight or operational validation.
+## Repository Structure
+ONEL-Dynamics-DroneOS-Overview/
+├── README.md
+└── docs/
+    ├── architecture_overview.md
+    ├── collaboration.md
+    ├── current_status.md
+    ├── roadmap.md
+    ├── repository_scope.md
+    ├── safety_notes.md
+    └── solar_inspection_mvp.md
+
+## Public-Safe Notes
+This repository contains no DroneOS implementation source code, no production flight logic, no operational credentials, and no private DroneOS-Lab source code.
+It is intended for public-safe communication, grant reviewers, collaboration screening, and partner discussions.
 
 ## License / Rights
 No open-source license has been selected yet. Unless a license is added, all rights are reserved by ONEL Dynamics / Ionuț Onel.
