@@ -32,14 +32,6 @@ DroneOS is a **mission/operator layer** for PX4-based drones. It abstracts missi
                     Boundary
                          │
 ┌────────────────────────▼────────────────────────────────────────┐
-│                    Vehicle Agent                                 │
-│         (Onboard Communication, Diagnostic Relay,                │
-│          Video/Sensor Aggregation, Local Computing)             │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                   MAVLink/Serial
-                         │
-┌────────────────────────▼────────────────────────────────────────┐
 │                    PX4 Flight Stack                              │
 │         (Flight Control, Sensor Fusion, Failsafe,                │
 │          RC Override, Autopilot Mode Management)                │
@@ -51,6 +43,8 @@ DroneOS is a **mission/operator layer** for PX4-based drones. It abstracts missi
 │                   Drone + Payload                                │
 │      (Airframe, Actuators, Sensors, Cameras, Batteries)         │
 └─────────────────────────────────────────────────────────────────┘
+
+> **Optional future path:** a Vehicle Agent onboard node may be added later for camera/sensor relay and local diagnostics, but it is not required in Field Box v0.1 architecture.
 ```
 
 ## Core Boundaries and Responsibilities
@@ -108,7 +102,7 @@ DroneOS is a **mission/operator layer** for PX4-based drones. It abstracts missi
 - Mission planning and upload interface
 - Flight history review and reporting
 - Alerts and health monitoring
-- Manual RC control fallback interface
+- Manual RC override remains under PX4 control; DroneOS supports operator visibility and mission coordination
 
 ## Future Enterprise Architecture
 
@@ -198,7 +192,7 @@ A **Field Box** is an edge compute node (currently Docker-based, future Jetson-b
 2. **Recovery Independence**: If any layer fails, the layer below remains operational
 3. **Local-First**: Edge compute is primary; cloud is asynchronous enhancement
 4. **Operator Centrality**: Humans remain in decision-making loop; automation assists, not replaces
-5. **Open Standards**: PX4/MAVLink are industry standards; DroneOS is not proprietary
+5. **Open Standards**: PX4 and MAVLink are industry standards; DroneOS builds on those open standards
 6. **Security Through Isolation**: Flight control and mission control are distinct attack surfaces
 7. **Testability**: Each layer can be validated independently before integration
 
