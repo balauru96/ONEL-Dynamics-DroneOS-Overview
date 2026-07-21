@@ -208,3 +208,5 @@ If contributing to mission logic, safety, or PX4 integration:
 ---
 
 **Thank you for your interest in DroneOS and ONEL Dynamics! We look forward to working with you.**
+
+Contact email: ionutonel96@gmail.com
