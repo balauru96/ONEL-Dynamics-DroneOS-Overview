@@ -1,220 +1,150 @@
 # Architecture Overview
 
-## ONEL Dynamics Vision
+> Updated: **3 September 2026**.
 
-**ONEL Dynamics** is envisioned as an enterprise IT and R&D company focused on autonomous drone operations, inspection services, and AI-driven analytics. DroneOS is the software foundation that enables this vision.
+## ONEL Dynamics / DroneOS Direction
+ONEL Dynamics is developing DroneOS as a reusable mission operations platform for autonomous drone workflows. Solar inspection is the first vertical used to prove the architecture.
 
-## DroneOS: The Mission Operating System
+DroneOS is not intended to replace the flight controller. **PX4 remains flight authority.** DroneOS operates above PX4 as the mission, workflow, data, operator and reporting layer.
 
-DroneOS is a **mission/operator layer** for PX4-based drones. It abstracts mission coordination, telemetry aggregation, reporting, and diagnostics from the flight control layer, allowing:
+## Current Deployment Architecture
 
-- Autonomous mission workflows and multi-vehicle supervision
-- Structured telemetry and operator monitoring
-- Integration with specialized services (inspection, analytics, AI vision)
-- Edge deployment via Field Box for local-first operations
-- Future cloud integration for fleet analytics and business intelligence
-
-## System Layers
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                   Operator Dashboard                             │
-│            (Web UI, Mission Planning, Fleet Monitoring)          │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────────┐
-│                   DroneOS Field Box                              │
-│         (Mission Coordination, Telemetry, Reporting,             │
-│          Health Checks, Diagnostics, Service Orchestration)     │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                   MAVLink/UDP
-                    Boundary
-                         │
-┌────────────────────────▼────────────────────────────────────────┐
-│                    PX4 Flight Stack                              │
-│         (Flight Control, Sensor Fusion, Failsafe,                │
-│          RC Override, Autopilot Mode Management)                │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                    Hardware/Sensors
-                         │
-┌────────────────────────▼────────────────────────────────────────┐
-│                   Drone + Payload                                │
-│      (Airframe, Actuators, Sensors, Cameras, Batteries)         │
-└─────────────────────────────────────────────────────────────────┘
-
-> **Optional future path:** a Vehicle Agent onboard node may be added later for camera/sensor relay and local diagnostics, but it is not required in Field Box v0.1 architecture.
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ Operator / Dashboard                                         │
+│ mission review • status • workflow visibility • reports      │
+└──────────────────────────┬───────────────────────────────────┘
+                           │
+┌──────────────────────────▼───────────────────────────────────┐
+│ DroneOS Field Box — NVIDIA Jetson Orin Nano Super            │
+│ mission workflow • telemetry • identity/provenance           │
+│ analysis • local data processing • report generation         │
+└───────────────┬───────────────────────────────┬──────────────┘
+                │                               │
+                │ MAVLink / MAVSDK              │ data path
+                │                               │
+┌───────────────▼────────────────┐   ┌──────────▼──────────────┐
+│ PX4 Flight Stack               │   │ Vehicle Agent Lite      │
+│ flight authority              │   │ onboard capture/relay   │
+│ stabilization • AUTO • safety │   │ physical path pending   │
+└───────────────┬────────────────┘   └──────────┬──────────────┘
+                │                               │
+                └──────────────┬────────────────┘
+                               ▼
+                      Drone + Payload
 ```
 
-## Core Boundaries and Responsibilities
+## PX4 Responsibilities
+PX4 owns the low-level flight-control authority:
 
-### PX4 (Flight Authority)
+- attitude and rate stabilization
+- state estimation and sensor fusion
+- vehicle arming and flight modes
+- AUTO mission execution
+- actuator control
+- core PX4 failsafes and recovery behavior
 
-**PX4 owns flight safety and control:**
+DroneOS does not run those real-time control loops.
 
-- Attitude stabilization and flight mode management
-- Sensor fusion and state estimation
-- RC receiver override and failsafe logic
-- Motor safety and propeller kill switches
-- Geofencing (hardware-based confidence layer)
+## DroneOS Responsibilities
+DroneOS owns the higher-level mission/workflow context:
 
-**PX4 does NOT:**
+- mission preparation and staging
+- command safety/telemetry gating around operator actions
+- mission/geofence/recovery identity tracking
+- mission progress and lifecycle reconciliation
+- local operator dashboard
+- Solar workflow composition
+- post-flight dataset acceptance and integrity verification
+- analysis and PanelMap generation
+- Inspection proposal generation and operator-confirmation boundary
+- workflow provenance
+- evidence/findings/report generation
 
-- Plan or optimize missions beyond simple waypoint navigation
-- Aggregate telemetry from multiple vehicles or sensors
-- Generate mission reports or analytics
-- Coordinate with ground operators or dashboards
+## Field Box
+The primary Field Box engineering platform is now **NVIDIA Jetson Orin Nano Super**.
 
-### DroneOS (Mission and Operations)
+Validated direction:
 
-**DroneOS owns mission coordination and reporting:**
+- ARM64 / Python 3.12 runtime
+- local-first operation
+- backend and dashboard on the Field Box
+- Docker for DroneOS backend/dashboard only
+- PX4 and Gazebo remain outside the DroneOS container
 
-- Mission planning, conflict detection, and execution sequencing
-- Telemetry collection, aggregation, and real-time streaming
-- Operator dashboard and mission supervision
-- Structured flight reporting and audit trails
-- Health diagnostics and recovery coordination
-- Integration with specialized services (inspection, analytics, vision)
+The Field Box is intended to remain useful without a permanent cloud connection. Cloud services are a later extension, not the primary flight/runtime dependency.
 
-**DroneOS does NOT:**
+## Vehicle Agent Lite
+Vehicle Agent Lite represents the onboard capture/data-relay boundary.
 
-- Command attitude, rate, or directly control actuators (PX4 does)
-- Claim to be safer or more reliable than PX4 (it is not)
-- Replace operator decision-making or RC override
-- Handle safety-critical real-time control loops
+Current status:
 
-### Vehicle Agent (Future)
+- its Recon/Inspection transfer semantics are represented in the integration architecture
+- local/simulated data-transfer paths are validated
+- the production physical onboard process, camera timing and network path are still pending validation
 
-**Vehicle Agent owns onboard intelligence and relay:**
+The intended role is narrow: bind captured media/sensor data to the exact mission execution and transfer it safely to the Field Box. It does not replace PX4 flight authority.
 
-- Video/sensor streaming to Field Box
-- Local diagnostics and telemetry relay to DroneOS
-- Onboard computing for time-sensitive workloads (e.g., obstacle detection)
-- Battery management and health monitoring
-- Payload coordination
+## Solar Workflow Architecture
 
-### Operator Dashboard
-
-**Dashboard owns operator situational awareness:**
-
-- Real-time vehicle tracking and state visualization
-- Mission planning and upload interface
-- Flight history review and reporting
-- Alerts and health monitoring
-- Manual RC override remains under PX4 control; DroneOS supports operator visibility and mission coordination
-
-## Future Enterprise Architecture
-
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                      Cloud Services                               │
-│  (Fleet Analytics, Business Intelligence, AI Model Training,      │
-│   Compliance Reporting, Historical Analysis)                     │
-└───────┬────────────────┬────────────────────┬─────────────────┬──┘
-        │                │                    │                 │
-   Analytics         AI Vision          Solar Inspection    Compliance
-   Pipeline          Services           Services           & Audit
-        │                │                    │                 │
-        └────────────────┼────────────────────┼─────────────────┘
-                         │
-         ┌───────────────▼───────────────┐
-         │   ONEL Control & Analytics    │
-         │  (Multi-Field Box Oversight)  │
-         └───────────────┬───────────────┘
-                         │
-        ┌────────────────┴────────────────┐
-        │                                 │
-  ┌─────▼──────┐                 ┌──────▼──────┐
-  │ Field Box  │                 │ Field Box   │
-  │  Site A    │    ...          │  Site B     │
-  └──────┬──────┘                 └──────┬──────┘
-         │                               │
-      Drones                          Drones
+```text
+SOLAR_RECON
+    ↓
+PX4 execution identity
+    ↓
+terminal landed/disarmed handoff
+    ↓
+Recon dataset acceptance
+    ↓
+detection → projection → fusion
+    ↓
+PanelMap
+    ↓
+Inspection proposal
+    ↓
+operator confirmation
+    ↓
+SOLAR_INSPECTION
+    ↓
+PX4 execution identity
+    ↓
+Inspection dataset acceptance
+    ↓
+InspectionEvidence → Findings
+    ↓
+SolarInspectionReport
 ```
 
-## Deployment Model: Field Box
+A persistent workflow/provenance layer binds the important semantic artifacts together, but it does **not** become a parallel flight authority or replace StateService/PX4 lifecycle authority.
 
-A **Field Box** is an edge compute node (currently Docker-based, future Jetson-based) that:
+## Safety / Authority Design Principles
 
-1. **Hosts DroneOS**: Mission engine, telemetry aggregation, reporting
-2. **Hosts Operator Dashboard**: Local or remote web interface
-3. **Manages Vehicle Agents**: Communicates with onboard systems
-4. **Manages PX4 Connections**: MAVLink gateway to autopilots
-5. **Coordinates Services**: Inspection workflows, video capture, AI analysis
-6. **Logs and Reports**: Flight history, mission outcomes, diagnostics
-7. **Operates Autonomously**: Can function offline; syncs to cloud when available
+1. **PX4 remains flight authority.**
+2. **Fail closed on ambiguous identity.** A stale/foreign mission, workflow, dataset or execution must not be silently accepted.
+3. **Separate workflow provenance from live mission authority.**
+4. **Operator confirmation remains explicit before the derived Flight B mission.**
+5. **Local-first processing.** Sensor/media processing and reporting can occur at the Field Box without requiring cloud availability.
+6. **Validate in layers.** Deterministic tests → SITL → hardware bench → controlled physical flight.
+7. **No production claim from simulation alone.** Real SITL execution is meaningful engineering evidence but is not physical-flight certification.
 
-### Benefits
+## Current vs Future
 
-- **Local-first**: Low-latency mission execution and telemetry
-- **Reliability**: Operates without cloud if necessary
-- **Privacy**: Sensor data and flight plans stay local unless explicitly synced
-- **Scalability**: Multiple Field Boxes can be managed from central cloud
-- **Flexibility**: Can be deployed as containerized (Docker) or embedded (Jetson)
+### Current engineering prototype
+- single-vehicle PX4 integration
+- Jetson Field Box
+- mission lifecycle/safety gates
+- two-flight Solar workflow
+- local post-flight processing
+- workflow provenance/reporting
+- optional offline Solar YOLO adapter
 
-## Future Services and Departments
+### Future platform direction
+- real Vehicle Agent/camera pipeline
+- thermal inspection
+- physical field pilots
+- richer Mission Control UX
+- multiple vehicles/sites
+- optional cloud/fleet analytics
+- additional verticals beyond Solar
 
-### AI Vision Department
-
-- Object and anomaly detection
-- Solar panel fault identification
-- Crop and field health analysis
-- Model training and optimization
-- On-device and cloud inference
-
-### Inspection Services
-
-- Solar panel inspection workflows
-- Thermal imaging analysis
-- Structural inspection protocols
-- Automated defect reporting
-- Integration with solar energy companies
-
-### Cloud and Analytics
-
-- Fleet-wide performance dashboards
-- Predictive maintenance and health trends
-- Compliance and audit trail management
-- Historical data analysis and ML training
-- Integration with customer business systems
-
-### Field Operations
-
-- Operator training and certification
-- Hardware maintenance and logistics
-- Site management and compliance
-- Customer support and issue resolution
-
-## Design Principles
-
-1. **Clear Separation of Concerns**: Each layer has defined responsibilities; no layer bypasses another
-2. **Recovery Independence**: If any layer fails, the layer below remains operational
-3. **Local-First**: Edge compute is primary; cloud is asynchronous enhancement
-4. **Operator Centrality**: Humans remain in decision-making loop; automation assists, not replaces
-5. **Open Standards**: PX4 and MAVLink are industry standards; DroneOS builds on those open standards
-6. **Security Through Isolation**: Flight control and mission control are distinct attack surfaces
-7. **Testability**: Each layer can be validated independently before integration
-
-## Integration Points
-
-| Interface | Protocol | Direction | Purpose |
-|-----------|----------|-----------|---------|
-| Operator ↔ Dashboard | HTTP/WebSocket | Bidirectional | Mission planning, monitoring, manual control |
-| Dashboard ↔ DroneOS | HTTP/REST, WebSocket | Bidirectional | Mission upload, telemetry streaming, diagnostics |
-| DroneOS ↔ Vehicle Agent | HTTP, MAVLink | Bidirectional | Command relay, telemetry aggregation, health checks |
-| DroneOS ↔ PX4 | MAVLink/UDP | Bidirectional | Mission waypoints, telemetry, mode commands |
-| DroneOS ↔ Cloud | HTTPS/Sync API | Asynchronous | Report upload, analytics sync, model updates |
-
-## Future Enhancements
-
-- **Multi-Vehicle Coordination**: Swarm mission planning and collision avoidance
-- **Advanced Autonomy**: AI-driven mission adaptation and obstacle avoidance
-- **Hardened Security**: Public-key cryptography, secure boot, firmware integrity
-- **Hardware Redundancy**: Dual autopilots, hot standby, recovery automation
-- **Regulatory Integration**: Compliance workflows, airspace coordination, certification
-- **Commercial Platform**: SaaS dashboards, customer API, billing integration
-
----
-
-**For safety and operational details, see [Safety Notes](safety_notes.md).**
+These future capabilities should be introduced only after the current local mission/data workflow proves reliable on physical hardware.

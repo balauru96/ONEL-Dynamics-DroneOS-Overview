@@ -1,70 +1,160 @@
 # Development Roadmap
 
-DroneOS development is organized into conservative milestones. Each phase is intended to be gated by validation criteria, hardware readiness, and safety review.
+> Updated: **3 September 2026**.
+
+DroneOS development is organized around validation gates rather than feature count. PX4 remains flight authority; DroneOS evolves as the mission, workflow, data and operator layer above it.
 
 ## Current Phase
-**Advanced Lab/SITL + Field Box stabilization**
+**Integrated Solar MVP backend + real PX4 SITL validation → hardware-backed field integration.**
 
-Jetson Field Box hardware validation is the next major milestone.
+The earlier Lab/SITL stabilization, Jetson bootstrap and first two-flight simulator milestones have been reached. The next major boundary is physical vehicle/camera integration and controlled flight validation.
 
-## Phases
+## Completed / Validated Milestones
 
-1. **Phase 1: Lab/SITL stabilization**
-   - Stabilize DroneOS architecture in simulation
-   - Validate mission upload, telemetry, and PX4 SITL execution
-   - Refine the dashboard runtime harness and local mission flow
+### Phase 1 — Core Lab/SITL Stabilization ✅
+- mission lifecycle and telemetry freshness hardening
+- fail-closed command gating
+- mission/geofence revision identity protection
+- dashboard runtime verification
+- deterministic safe-test lane and CI
 
-2. **Phase 2: Field Box Docker/local deployment**
-   - Containerize DroneOS backend and dashboard for edge deployment
-   - Validate local Field Box startup, health checks, and mission flow
-   - Clarify that Docker deploys DroneOS backend/dashboard only, not PX4 or Gazebo
+### Phase 2 — Jetson Field Box Baseline ✅
+- NVIDIA Jetson Orin Nano Super selected as primary Field Box platform
+- reproducible ARM64/Python 3.12 bootstrap validated
+- safe-suite parity validated on Jetson
+- Docker aligned to backend/dashboard only
 
-3. **Phase 3: Jetson Field Box validation**
-   - Validate ARM64 deployment and Jetson compatibility
-   - Confirm Docker/local Field Box stability on Jetson hardware
-   - Run PX4 SITL mission flow on Jetson as a preparation step
+### Phase 3 — Solar Data Contracts and Reporting ✅
+- Recon capture/replay contracts
+- Inspection evidence and findings contracts
+- deterministic SolarInspectionReport
+- strict local manifest/media integrity validation
+- SHA-256 integrity checks
 
-4. **Phase 4: PX4 hardware / no-props bench validation**
-   - Validate real PX4 autopilot communication on bench hardware
-   - Verify MAVLink telemetry, failsafes, and RC override behavior
-   - Ensure hardware safety practices before first flight
+### Phase 4 — Solar Vision / Mapping Prototype ✅
+- detector abstraction
+- optional offline YOLO adapter
+- image-to-ground projection
+- deterministic cross-frame panel fusion
+- PanelMap generation
+- InspectionPlan generation
 
-5. **Phase 5: First controlled real flight**
-   - Execute a controlled, simple waypoint mission
-   - Keep manual RC override and operator supervision as the primary safety path
-   - Collect telemetry, logs, and post-flight analysis
+This is an engineering prototype baseline; no survey-grade mapping claim is made.
 
-6. **Phase 6: Solar inspection MVP / pilot**
-   - Deliver an inspection workflow with video/image capture and reporting
-   - Use local Field Box processing to support inspection mission planning
-   - Keep AI/thermal defect detection as future R&D unless validated
+### Phase 5 — Deterministic Solar E2E ✅
+Validated offline:
 
-7. **Phase 7: Vehicle Agent Lite / onboard node**
-   - Define optional onboard communication and relay node
-   - Support sensor telemetry, local diagnostics, and video/sensor relay
-   - Keep Vehicle Agent future/optional for Field Box v0.1 architecture
+Recon
+→ data handoff
+→ detection/projection/fusion
+→ PanelMap
+→ InspectionPlan
+→ Inspection mission
+→ evidence/findings
+→ report
 
-8. **Phase 8: AI vision baseline**
-   - Add a measured AI vision baseline for future inspection workflows
-   - Focus on dataset, evaluation criteria, and human-reviewed outcomes
-   - Do not claim validated defect detection before it is proven
+### Phase 6 — Real PX4 SITL Flight A → Flight B ✅
+Validated through real PX4 SITL / Gazebo / MAVSDK AUTO execution:
 
-9. **Phase 9: Cloud / analytics future**
-   - Explore optional cloud synchronization, fleet analytics, and reporting
-   - Keep cloud as an extension after local Field Box workflows are stable
+- Flight A Solar Recon
+- completion + LAND + terminal handoff
+- Recon analysis → PanelMap
+- exact Inspection proposal
+- explicit operator confirmation
+- Flight B Solar Inspection
+- completion + terminal handoff
 
-## Validation Criteria
-Each phase should be gated by clear acceptance criteria, including:
+### Phase 7 — Integrated A→B→Report Workflow Backend ✅ / ACTIVE HARDENING
+Implemented:
 
-- validated functionality in the intended environment
-- documented safety and hardware assumptions
-- operator supervision and recovery procedures
-- regression testing and functional verification
-- clear limits on what is not yet validated
+- immutable Solar workflow/provenance ledger
+- accepted Recon → PanelMap → Inspection proposal workflow service
+- exact operator-confirmation/staging boundary
+- Inspection dataset → findings → canonical report workflow service
+- workflow read model/API
+- exact Recon mission/workflow identity binding
+- trusted Recon ingestion wired into workflow processing
+- real PX4 SITL A→B→Report integration gate
+
+This integration line remains subject to promotion into the stable baseline after review/validation.
+
+## Next Milestones
+
+### Phase 8 — Vehicle Agent Lite + Real Camera Path 🔜
+- run a real onboard Vehicle Agent Lite process
+- bind camera captures to the exact mission execution identity
+- transfer datasets over the real vehicle↔Field Box network path
+- preserve checksum, manifest and authority guarantees across the physical transport boundary
+- validate restart/cancellation/failure behavior
+
+### Phase 9 — PX4 Hardware Bench 🔜
+- connect real PX4 autopilot hardware
+- no-props validation
+- MAVLink telemetry and mission upload
+- failsafe and RC/manual recovery verification
+- power/network/Field Box operational checks
+
+### Phase 10 — First Controlled Physical Flight
+- simple bounded waypoint validation first
+- operator supervision and manual recovery path available
+- collect PX4 logs and DroneOS workflow telemetry
+- compare real behavior against SITL assumptions
+
+### Phase 11 — Physical Solar Recon → Inspection Workflow
+- real Flight A capture
+- Field Box Recon analysis
+- operator-reviewed Inspection proposal
+- real Flight B execution
+- real evidence transfer
+- local report generation
+
+### Phase 12 — Pilot-Quality Solar Evaluation
+- real solar-site dataset
+- panel mapping accuracy metrics
+- capture completeness metrics
+- workflow reliability / failure recovery metrics
+- customer-readable report quality
+- repeatability across multiple missions/sites
+
+### Phase 13 — Thermal / Defect Detection R&D
+Only after the physical data pipeline is stable:
+
+- thermal payload integration
+- measured defect detection baseline
+- labeled dataset and evaluation methodology
+- confidence/calibration and human review
+- edge inference optimization
+
+No production defect-detection claim should precede measured validation.
+
+### Phase 14 — Cloud / Fleet Platform
+After local Field Box operation is dependable:
+
+- optional report synchronization
+- fleet analytics
+- multi-site management
+- centralized model/data lifecycle
+- customer APIs and business integrations
+
+## Strategic Product Direction
+Solar inspection is the first vertical used to prove the platform architecture. The longer-term direction is a reusable mission operations platform for inspection, infrastructure, logistics and other autonomous drone workflows, while preserving a strict boundary between mission intelligence and PX4 flight control.
+
+## Validation Principles
+Every milestone should continue to require:
+
+- explicit authority ownership
+- fail-closed identity handling
+- deterministic tests before hardware tests
+- SITL before physical flight for changed flight-facing behavior
+- documented limitations and non-claims
+- operator recovery path
+- immutable or auditable provenance where workflow decisions depend on prior data
 
 ## Public Claims
-- Emphasize the current stage: lab/SITL and Field Box stabilization
-- Do not claim production readiness or certification
-- Do not claim real flight validation
-- Do not claim AI/thermal defect detection as implemented
-- Clarify that PX4 remains the flight authority and that DroneOS is the mission/operator layer
+Current public positioning should say:
+
+- integrated engineering prototype
+- Jetson Field Box engineering baseline validated
+- real PX4 SITL two-flight Solar workflow validated
+- backend Recon→Inspection→Report workflow integrated
+- physical flight, production camera pipeline, certification and commercial readiness are still pending
