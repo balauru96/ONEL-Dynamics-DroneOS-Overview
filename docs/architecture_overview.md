@@ -1,32 +1,60 @@
 # Architecture Overview
 
-> Updated: **3 September 2026**.
+> Updated: **6 September 2026**.
 
 ## ONEL Dynamics / DroneOS Direction
-ONEL Dynamics is developing DroneOS as a reusable mission operations platform for autonomous drone workflows. Solar inspection is the first vertical used to prove the architecture.
+ONEL Dynamics is developing DroneOS as a reusable, local-first **mission-orchestration and evidence platform** for autonomous drone workflows. Solar inspection is the first vertical used to prove the architecture.
 
-DroneOS is not intended to replace the flight controller. **PX4 remains flight authority.** DroneOS operates above PX4 as the mission, workflow, data, operator and reporting layer.
+DroneOS is not intended to replace the flight controller. **PX4 remains flight authority.** DroneOS operates above PX4 as the mission, workflow, safety-state, data, operator and reporting layer.
+
+The long-term architectural idea is a modular mission-intelligence Core that can coordinate increasingly rich workflows while preserving the same hard boundary: **UI and AI may propose; DroneOS validates; PX4 executes the aircraft.**
+
+![DroneOS-Core layers](assets/droneos-core-layers.svg)
+
+## DroneOS-Core Layer Model
+DroneOS-Core is structured as responsibility layers rather than a monolithic application.
+
+### Layer 1 — Operator / API / Mission Control
+Provides human and programmatic interaction: intent, visibility, confirmation, diagnostics and read models. The UI is not source of truth; server-side authority is revalidated before commit.
+
+### Layer 2 — Mission & Workflow Orchestration
+Coordinates mission and workflow progression: planning, staging, start, reconciliation, handoff, processing, retry, cancellation and recovery semantics.
+
+### Layer 3 — Authority / State / Safety
+`StateService` and safety logic maintain live mission/workflow authority: revisions, uploaded identity, execution/handoff identity, recovery generation, dataset acceptance and fail-closed command gates.
+
+### Layer 4 — Flight Integration
+Provides the explicit PX4/MAVLink/MAVSDK boundary for mission upload/start/progress/recovery. DroneOS does not move attitude stabilization or actuator loops into Python.
+
+### Layer 5 — Data / Evidence / Provenance
+Accepts post-flight data only after identity, schema, path, telemetry and checksum validation. Provenance binds semantic artifacts such as datasets, PanelMap, proposals and reports to their exact predecessors.
+
+### Layer 6 — Perception / World Model
+Detector providers produce structured observations, not flight authority. Detections can be projected/fused into semantic world models such as `PanelMap`, which can then feed mission proposals.
+
+### Layer 7 — Vertical Applications
+Solar is the first application layer. Future domains can reuse the same mission, authority, evidence and perception primitives without rewriting the Core.
 
 ## Current Deployment Architecture
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
-│ Operator / Dashboard                                         │
-│ mission review • status • workflow visibility • reports      │
+│ Operator / Mission Control                                   │
+│ intent • status • workflow visibility • reports              │
 └──────────────────────────┬───────────────────────────────────┘
                            │
 ┌──────────────────────────▼───────────────────────────────────┐
 │ DroneOS Field Box — NVIDIA Jetson Orin Nano Super            │
-│ mission workflow • telemetry • identity/provenance           │
-│ analysis • local data processing • report generation         │
+│ orchestration • safety-state • telemetry • provenance        │
+│ trusted data • analysis • diagnostics • reporting            │
 └───────────────┬───────────────────────────────┬──────────────┘
                 │                               │
-                │ MAVLink / MAVSDK              │ data path
+                │ MAVLink / MAVSDK              │ physical data path
                 │                               │
 ┌───────────────▼────────────────┐   ┌──────────▼──────────────┐
 │ PX4 Flight Stack               │   │ Vehicle Agent Lite      │
-│ flight authority              │   │ onboard capture/relay   │
-│ stabilization • AUTO • safety │   │ physical path pending   │
+│ flight authority              │   │ capture / association   │
+│ stabilization • AUTO • safety │   │ finalize / transfer     │
 └───────────────┬────────────────┘   └──────────┬──────────────┘
                 │                               │
                 └──────────────┬────────────────┘
@@ -35,7 +63,7 @@ DroneOS is not intended to replace the flight controller. **PX4 remains flight a
 ```
 
 ## PX4 Responsibilities
-PX4 owns the low-level flight-control authority:
+PX4 owns low-level flight-control authority:
 
 - attitude and rate stabilization
 - state estimation and sensor fusion
@@ -53,37 +81,67 @@ DroneOS owns the higher-level mission/workflow context:
 - command safety/telemetry gating around operator actions
 - mission/geofence/recovery identity tracking
 - mission progress and lifecycle reconciliation
-- local operator dashboard
-- Solar workflow composition
-- post-flight dataset acceptance and integrity verification
-- analysis and PanelMap generation
-- Inspection proposal generation and operator-confirmation boundary
+- workflow composition and progression
+- trusted post-flight dataset acceptance
+- analysis / semantic world-model generation
+- proposal generation and operator-confirmation boundaries
 - workflow provenance
 - evidence/findings/report generation
+- local operator visibility and diagnostics
 
 ## Field Box
-The primary Field Box engineering platform is now **NVIDIA Jetson Orin Nano Super**.
+The primary Field Box engineering platform is **NVIDIA Jetson Orin Nano Super**.
 
-Validated direction:
+Validated as of September 2026:
 
-- ARM64 / Python 3.12 runtime
-- local-first operation
-- backend and dashboard on the Field Box
-- Docker for DroneOS backend/dashboard only
-- PX4 and Gazebo remain outside the DroneOS container
+- ARM64 runtime and native Docker build
+- non-root container execution
+- authenticated API and WebSocket over LAN
+- local-first backend/dashboard operation
+- remote connection to PX4 SITL on a separate computer
+- remote PX4 mission upload/start
+- live telemetry return
 
-The Field Box is intended to remain useful without a permanent cloud connection. Cloud services are a later extension, not the primary flight/runtime dependency.
+See [Field Box Validation](fieldbox_validation.md).
+
+The Field Box is intended to remain useful without permanent cloud availability. Cloud services are a later extension, not a primary flight/runtime dependency.
 
 ## Vehicle Agent Lite
-Vehicle Agent Lite represents the onboard capture/data-relay boundary.
+Vehicle Agent Lite is intentionally narrow:
 
-Current status:
+- capture
+- associate sensor/media with mission execution
+- finalize a verifiable dataset
+- transfer it to the Field Box
 
-- its Recon/Inspection transfer semantics are represented in the integration architecture
-- local/simulated data-transfer paths are validated
-- the production physical onboard process, camera timing and network path are still pending validation
+It should not become a second DroneOS. Mission planning, workflow authority, trusted acceptance, analysis and reporting remain on the Field Box.
 
-The intended role is narrow: bind captured media/sensor data to the exact mission execution and transfer it safely to the Field Box. It does not replace PX4 flight authority.
+The production onboard process, real camera timing and physical network path remain pending validation.
+
+## Mission Intelligence: What Makes DroneOS “Smart”
+DroneOS intelligence is not defined as “an AI model flies the drone.” The intended controlled loop is:
+
+```text
+Observe
+  ↓
+Understand context / world model
+  ↓
+Propose a mission or workflow action
+  ↓
+Validate live authority + safety + identity
+  ↓
+Execute through PX4
+  ↓
+Collect evidence
+  ↓
+Reconcile and advance workflow
+```
+
+Conceptually:
+
+**smart = context + state + perception + rules + evidence**
+
+AI/perception is one input to this loop, not the authority owner.
 
 ## Solar Workflow Architecture
 
@@ -115,36 +173,27 @@ InspectionEvidence → Findings
 SolarInspectionReport
 ```
 
-A persistent workflow/provenance layer binds the important semantic artifacts together, but it does **not** become a parallel flight authority or replace StateService/PX4 lifecycle authority.
+Solar is strategically useful because it exercises the reusable platform primitives: **discover → understand → plan → approve → execute → report**.
 
 ## Safety / Authority Design Principles
-
 1. **PX4 remains flight authority.**
-2. **Fail closed on ambiguous identity.** A stale/foreign mission, workflow, dataset or execution must not be silently accepted.
+2. **Fail closed on ambiguous identity/state.**
 3. **Separate workflow provenance from live mission authority.**
-4. **Operator confirmation remains explicit before the derived Flight B mission.**
-5. **Local-first processing.** Sensor/media processing and reporting can occur at the Field Box without requiring cloud availability.
-6. **Validate in layers.** Deterministic tests → SITL → hardware bench → controlled physical flight.
-7. **No production claim from simulation alone.** Real SITL execution is meaningful engineering evidence but is not physical-flight certification.
+4. **Operator confirmation remains explicit before derived Flight B staging.**
+5. **Local-first processing.**
+6. **Validate in layers: tests → SITL → distributed Field Box → hardware bench → controlled physical flight.**
+7. **No production claim from simulation alone.**
 
-## Current vs Future
+## Future Mission-Orchestration Center
+After the physical Solar workflow is proven, the same Core can evolve into a broader orchestration center capable of combining:
 
-### Current engineering prototype
-- single-vehicle PX4 integration
-- Jetson Field Box
-- mission lifecycle/safety gates
-- two-flight Solar workflow
-- local post-flight processing
-- workflow provenance/reporting
-- optional offline Solar YOLO adapter
+- multiple mission types and sites
+- richer perception/world-model providers
+- event/detection-driven mission proposals
+- fleet-level scheduling and supervision
+- optional cloud synchronization/analytics
+- additional verticals such as wind, infrastructure, agriculture, search and rescue or logistics
 
-### Future platform direction
-- real Vehicle Agent/camera pipeline
-- thermal inspection
-- physical field pilots
-- richer Mission Control UX
-- multiple vehicles/sites
-- optional cloud/fleet analytics
-- additional verticals beyond Solar
+These are **future architectural directions**, not current commercial capabilities.
 
-These future capabilities should be introduced only after the current local mission/data workflow proves reliable on physical hardware.
+The key constraint remains unchanged: greater mission intelligence must not blur the boundary between mission authority and PX4 flight control.
