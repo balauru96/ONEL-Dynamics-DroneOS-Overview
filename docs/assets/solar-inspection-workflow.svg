@@ -53,7 +53,7 @@
 
     <rect x="520" y="525" width="360" height="118" rx="16" fill="#2675a8"/>
     <text x="545" y="560" font-size="18" font-weight="700" fill="#e9f8ff">ANALYZE</text>
-    <text x="545" y="595" font-size="24" font-weight="700" fill="#ffffff">Evidence & Findings</text>
+    <text x="545" y="595" font-size="24" font-weight="700" fill="#ffffff">Evidence &amp; Findings</text>
     <text x="545" y="622" font-size="17" fill="#eaf7ff">candidate providers · confidence · traceable evidence</text>
 
     <rect x="970" y="525" width="360" height="118" rx="16" fill="#0b1f3a"/>
