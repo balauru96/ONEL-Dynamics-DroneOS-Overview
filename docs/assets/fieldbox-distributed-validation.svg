@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="640" viewBox="0 0 1200 640">
+  <rect width="1200" height="640" fill="#f6f8fb"/>
+  <text x="60" y="70" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#0b1f3a">DroneOS Field Box — Distributed Validation</text>
+  <text x="60" y="108" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#52606d">Validated in Lab/SITL · September 2026</text>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="70" y="190" width="250" height="150" rx="16" fill="#dbe8f3" stroke="#0b1f3a" stroke-width="2"/>
+    <text x="195" y="235" text-anchor="middle" font-size="22" font-weight="700" fill="#0b1f3a">Operator</text>
+    <text x="195" y="270" text-anchor="middle" font-size="18" fill="#334e68">Browser / Mission Control</text>
+    <text x="195" y="302" text-anchor="middle" font-size="16" fill="#52606d">HTTP + WebSocket</text>
+
+    <rect x="465" y="160" width="270" height="210" rx="16" fill="#0b1f3a"/>
+    <text x="600" y="208" text-anchor="middle" font-size="24" font-weight="700" fill="#ffffff">NVIDIA Jetson</text>
+    <text x="600" y="242" text-anchor="middle" font-size="20" fill="#d9ecff">DroneOS Field Box</text>
+    <text x="600" y="280" text-anchor="middle" font-size="16" fill="#d9ecff">ARM64 · Docker · non-root</text>
+    <text x="600" y="310" text-anchor="middle" font-size="16" fill="#d9ecff">Auth · API · WebSocket</text>
+    <text x="600" y="340" text-anchor="middle" font-size="16" fill="#d9ecff">PX4Bridge · telemetry · workflow</text>
+
+    <rect x="880" y="190" width="250" height="150" rx="16" fill="#dbe8f3" stroke="#0b1f3a" stroke-width="2"/>
+    <text x="1005" y="235" text-anchor="middle" font-size="22" font-weight="700" fill="#0b1f3a">PX4 SITL + Gazebo</text>
+    <text x="1005" y="270" text-anchor="middle" font-size="18" fill="#334e68">Separate computer</text>
+    <text x="1005" y="302" text-anchor="middle" font-size="16" fill="#52606d">AUTO mission execution</text>
+
+    <line x1="320" y1="265" x2="465" y2="265" stroke="#2675a8" stroke-width="5"/>
+    <polygon points="455,255 475,265 455,275" fill="#2675a8"/>
+    <text x="392" y="245" text-anchor="middle" font-size="15" fill="#2675a8">LAN</text>
+
+    <line x1="735" y1="245" x2="880" y2="245" stroke="#2675a8" stroke-width="5"/>
+    <polygon points="870,235 890,245 870,255" fill="#2675a8"/>
+    <text x="807" y="225" text-anchor="middle" font-size="15" fill="#2675a8">MAVLink mission start</text>
+
+    <line x1="880" y1="300" x2="735" y2="300" stroke="#4aa2c8" stroke-width="5"/>
+    <polygon points="745,290 725,300 745,310" fill="#4aa2c8"/>
+    <text x="807" y="330" text-anchor="middle" font-size="15" fill="#318bbd">live telemetry return</text>
+  </g>
+
+  <rect x="135" y="435" width="930" height="108" rx="14" fill="#ffffff" stroke="#b7c9d6" stroke-width="2"/>
+  <text x="165" y="472" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#0b1f3a">Validated evidence</text>
+  <text x="165" y="505" font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#334e68">Native ARM64 build · authenticated API · LAN/WebSocket · remote PX4 mission upload/start · mission execution · telemetry return</text>
+  <text x="165" y="532" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#6b7785">This is distributed Lab/SITL validation, not physical-flight certification.</text>
+</svg>
