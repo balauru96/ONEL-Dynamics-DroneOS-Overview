@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <rect width="1200" height="720" fill="#f6f8fb"/>
+  <text x="60" y="70" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#0b1f3a">DroneOS-Core — Modular Layer Model</text>
+  <text x="60" y="105" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#52606d">Mission intelligence above PX4 · local-first · fail-closed · evidence-driven</text>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="110" y="140" width="980" height="62" rx="12" fill="#0b1f3a"/>
+    <text x="140" y="179" font-size="22" font-weight="700" fill="#ffffff">7 · Vertical Applications</text>
+    <text x="455" y="179" font-size="18" fill="#d8e2ef">Solar · Wind · Infrastructure · Search & Rescue · Logistics</text>
+
+    <rect x="110" y="216" width="980" height="62" rx="12" fill="#123f69"/>
+    <text x="140" y="255" font-size="22" font-weight="700" fill="#ffffff">6 · Perception & World Model</text>
+    <text x="500" y="255" font-size="18" fill="#d9ecff">Detections · Projection · Fusion · PanelMap / scene context</text>
+
+    <rect x="110" y="292" width="980" height="62" rx="12" fill="#1c5c8d"/>
+    <text x="140" y="331" font-size="22" font-weight="700" fill="#ffffff">5 · Data, Evidence & Provenance</text>
+    <text x="520" y="331" font-size="18" fill="#e6f4ff">Trusted ingestion · checksums · lineage · reports</text>
+
+    <rect x="110" y="368" width="980" height="62" rx="12" fill="#2675a8"/>
+    <text x="140" y="407" font-size="22" font-weight="700" fill="#ffffff">4 · Flight Integration</text>
+    <text x="405" y="407" font-size="18" fill="#e9f7ff">PX4 / MAVLink / MAVSDK · upload · start · progress · recovery</text>
+
+    <rect x="110" y="444" width="980" height="62" rx="12" fill="#318bbd"/>
+    <text x="140" y="483" font-size="22" font-weight="700" fill="#ffffff">3 · Authority, State & Safety</text>
+    <text x="500" y="483" font-size="18" fill="#f0fbff">StateService · revisions · fingerprints · fail-closed gates</text>
+
+    <rect x="110" y="520" width="980" height="62" rx="12" fill="#4aa2c8"/>
+    <text x="140" y="559" font-size="22" font-weight="700" fill="#0b1f3a">2 · Mission & Workflow Orchestration</text>
+    <text x="570" y="559" font-size="18" fill="#0b1f3a">Plan · stage · execute · reconcile · process · report</text>
+
+    <rect x="110" y="596" width="980" height="62" rx="12" fill="#b7ddeb"/>
+    <text x="140" y="635" font-size="22" font-weight="700" fill="#0b1f3a">1 · Operator, API & Mission Control</text>
+    <text x="560" y="635" font-size="18" fill="#0b1f3a">Intent · visibility · confirmation · diagnostics</text>
+  </g>
+
+  <text x="60" y="698" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#6b7785">Conceptual public-safe diagram. PX4 remains flight authority; higher layers do not inherit actuator authority.</text>
+</svg>
