@@ -192,6 +192,7 @@ This repository contains no DroneOS implementation source code, no operational c
 - [Current Status](docs/current_status.md)
 - [Architecture Overview](docs/architecture_overview.md)
 - [Field Box Validation](docs/fieldbox_validation.md)
+- [Pre-Pilot Validation Scope](docs/pre_pilot_validation_scope.md)
 - [Roadmap](docs/roadmap.md)
 - [Solar Inspection MVP](docs/solar_inspection_mvp.md)
 - [Collaboration Guidelines](docs/collaboration.md)
