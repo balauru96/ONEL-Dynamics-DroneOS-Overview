@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860">
+  <rect width="1400" height="860" fill="#f6f8fb"/>
+  <text x="70" y="70" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#0b1f3a">DroneOS Solar Inspection Workflow</text>
+  <text x="70" y="108" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#52606d">Two-flight workflow · local-first processing · exact mission/data lineage · PX4 remains flight authority</text>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="70" y="155" width="360" height="118" rx="16" fill="#0b1f3a"/>
+    <text x="95" y="190" font-size="18" font-weight="700" fill="#9fd8f0">FLIGHT A</text>
+    <text x="95" y="225" font-size="26" font-weight="700" fill="#ffffff">SOLAR_RECON</text>
+    <text x="95" y="252" font-size="17" fill="#d9e2ec">Discover site structure · PX4 AUTO</text>
+
+    <rect x="520" y="155" width="360" height="118" rx="16" fill="#1c5c8d"/>
+    <text x="545" y="190" font-size="18" font-weight="700" fill="#dff4ff">TRUSTED INGESTION</text>
+    <text x="545" y="225" font-size="24" font-weight="700" fill="#ffffff">Recon Dataset</text>
+    <text x="545" y="252" font-size="17" fill="#eaf7ff">identity · schema · paths · telemetry · checksums</text>
+
+    <rect x="970" y="155" width="360" height="118" rx="16" fill="#2675a8"/>
+    <text x="995" y="190" font-size="18" font-weight="700" fill="#e9f8ff">UNDERSTAND</text>
+    <text x="995" y="225" font-size="24" font-weight="700" fill="#ffffff">PanelMap</text>
+    <text x="995" y="252" font-size="17" fill="#eaf7ff">detection · projection · fusion · site model</text>
+
+    <path d="M430 214 H500" stroke="#68859f" stroke-width="6" fill="none"/>
+    <polygon points="500,214 480,202 480,226" fill="#68859f"/>
+    <path d="M880 214 H950" stroke="#68859f" stroke-width="6" fill="none"/>
+    <polygon points="950,214 930,202 930,226" fill="#68859f"/>
+
+    <rect x="970" y="340" width="360" height="118" rx="16" fill="#318bbd"/>
+    <text x="995" y="375" font-size="18" font-weight="700" fill="#0b1f3a">PROPOSE</text>
+    <text x="995" y="410" font-size="24" font-weight="700" fill="#0b1f3a">Inspection Proposal</text>
+    <text x="995" y="437" font-size="17" fill="#0b1f3a">route derived from exact PanelMap provenance</text>
+
+    <rect x="520" y="340" width="360" height="118" rx="16" fill="#b7ddeb"/>
+    <text x="545" y="375" font-size="18" font-weight="700" fill="#0b1f3a">AUTHORITY GATE</text>
+    <text x="545" y="410" font-size="24" font-weight="700" fill="#0b1f3a">Operator Confirmation</text>
+    <text x="545" y="437" font-size="17" fill="#0b1f3a">exact proposal fingerprint revalidated server-side</text>
+
+    <rect x="70" y="340" width="360" height="118" rx="16" fill="#123f69"/>
+    <text x="95" y="375" font-size="18" font-weight="700" fill="#bfe7f7">FLIGHT B</text>
+    <text x="95" y="410" font-size="26" font-weight="700" fill="#ffffff">SOLAR_INSPECTION</text>
+    <text x="95" y="437" font-size="17" fill="#d9e2ec">Targeted inspection mission · PX4 AUTO</text>
+
+    <path d="M1150 273 V320" stroke="#68859f" stroke-width="6" fill="none"/>
+    <polygon points="1150,320 1138,300 1162,300" fill="#68859f"/>
+    <path d="M970 399 H900" stroke="#68859f" stroke-width="6" fill="none"/>
+    <polygon points="900,399 920,387 920,411" fill="#68859f"/>
+    <path d="M520 399 H450" stroke="#68859f" stroke-width="6" fill="none"/>
+    <polygon points="450,399 470,387 470,411" fill="#68859f"/>
+
+    <rect x="70" y="525" width="360" height="118" rx="16" fill="#1c5c8d"/>
+    <text x="95" y="560" font-size="18" font-weight="700" fill="#dff4ff">TRUSTED INGESTION</text>
+    <text x="95" y="595" font-size="24" font-weight="700" fill="#ffffff">Inspection Dataset</text>
+    <text x="95" y="622" font-size="17" fill="#eaf7ff">bound to Flight B execution + proposal lineage</text>
+
+    <rect x="520" y="525" width="360" height="118" rx="16" fill="#2675a8"/>
+    <text x="545" y="560" font-size="18" font-weight="700" fill="#e9f8ff">ANALYZE</text>
+    <text x="545" y="595" font-size="24" font-weight="700" fill="#ffffff">Evidence & Findings</text>
+    <text x="545" y="622" font-size="17" fill="#eaf7ff">candidate providers · confidence · traceable evidence</text>
+
+    <rect x="970" y="525" width="360" height="118" rx="16" fill="#0b1f3a"/>
+    <text x="995" y="560" font-size="18" font-weight="700" fill="#9fd8f0">OUTPUT</text>
+    <text x="995" y="595" font-size="24" font-weight="700" fill="#ffffff">Canonical Report</text>
+    <text x="995" y="622" font-size="17" fill="#d9e2ec">mission ID · findings · immutable provenance</text>
+
+    <path d="M250 458 V505" stroke="#68859f" stroke-width="6" fill="none"/>
+    <polygon points="250,505 238,485 262,485" fill="#68859f"/>
+    <path d="M430 584 H500" stroke="#68859f" stroke-width="6" fill="none"/>
+    <polygon points="500,584 480,572 480,596" fill="#68859f"/>
+    <path d="M880 584 H950" stroke="#68859f" stroke-width="6" fill="none"/>
+    <polygon points="950,584 930,572 930,596" fill="#68859f"/>
+
+    <rect x="70" y="700" width="1260" height="82" rx="14" fill="#e9eef5" stroke="#c3cfdb"/>
+    <text x="95" y="735" font-size="19" font-weight="700" fill="#0b1f3a">Evidence chain</text>
+    <text x="245" y="735" font-size="17" fill="#34495e">Recon execution → accepted Recon dataset → PanelMap → exact proposal → Flight B execution → accepted Inspection dataset → findings → report</text>
+    <text x="95" y="765" font-size="15" fill="#6b7785">Current mission execution is validated in PX4 SITL; physical camera/vehicle transfer and real-aircraft validation remain pending.</text>
+  </g>
+</svg>
