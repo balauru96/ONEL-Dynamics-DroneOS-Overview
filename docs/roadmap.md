@@ -1,11 +1,11 @@
 # Development Roadmap
 
-> Updated: **3 September 2026**.
+> Updated: **6 September 2026**.
 
 DroneOS development is organized around validation gates rather than feature count. PX4 remains flight authority; DroneOS evolves as the mission, workflow, data and operator layer above it.
 
 ## Current Phase
-**Integrated Solar MVP backend + real PX4 SITL validation → hardware-backed field integration.**
+**Integrated Solar MVP + real PX4 SITL + distributed Jetson Field Box validation → hardware-backed field integration.**
 
 The earlier Lab/SITL stabilization, Jetson bootstrap and first two-flight simulator milestones have been reached. The next major boundary is physical vehicle/camera integration and controlled flight validation.
 
@@ -15,20 +15,20 @@ The earlier Lab/SITL stabilization, Jetson bootstrap and first two-flight simula
 - mission lifecycle and telemetry freshness hardening
 - fail-closed command gating
 - mission/geofence revision identity protection
-- dashboard runtime verification
 - deterministic safe-test lane and CI
 
 ### Phase 2 — Jetson Field Box Baseline ✅
 - NVIDIA Jetson Orin Nano Super selected as primary Field Box platform
-- reproducible ARM64/Python 3.12 bootstrap validated
-- safe-suite parity validated on Jetson
-- Docker aligned to backend/dashboard only
+- ARM64 runtime validated
+- native Docker build validated
+- non-root runtime validated
+- authenticated local/LAN operation validated
 
 ### Phase 3 — Solar Data Contracts and Reporting ✅
 - Recon capture/replay contracts
 - Inspection evidence and findings contracts
 - deterministic SolarInspectionReport
-- strict local manifest/media integrity validation
+- strict manifest/media integrity validation
 - SHA-256 integrity checks
 
 ### Phase 4 — Solar Vision / Mapping Prototype ✅
@@ -39,7 +39,7 @@ The earlier Lab/SITL stabilization, Jetson bootstrap and first two-flight simula
 - PanelMap generation
 - InspectionPlan generation
 
-This is an engineering prototype baseline; no survey-grade mapping claim is made.
+No survey-grade mapping claim is made.
 
 ### Phase 5 — Deterministic Solar E2E ✅
 Validated offline:
@@ -65,7 +65,7 @@ Validated through real PX4 SITL / Gazebo / MAVSDK AUTO execution:
 - completion + terminal handoff
 
 ### Phase 7 — Integrated A→B→Report Workflow Backend ✅ / ACTIVE HARDENING
-Implemented:
+Implemented in the current development line:
 
 - immutable Solar workflow/provenance ledger
 - accepted Recon → PanelMap → Inspection proposal workflow service
@@ -76,31 +76,43 @@ Implemented:
 - trusted Recon ingestion wired into workflow processing
 - real PX4 SITL A→B→Report integration gate
 
-This integration line remains subject to promotion into the stable baseline after review/validation.
+Promotion into stable baselines remains gated by review and regression validation.
+
+### Phase 8 — Distributed Field Box Validation ✅
+Validated in September 2026:
+
+- DroneOS running natively on NVIDIA Jetson Orin Nano / ARM64
+- Docker non-root runtime
+- authenticated API + WebSocket over LAN
+- PX4 SITL + Gazebo on a separate computer
+- remote PX4 mission upload/start over LAN
+- live mission telemetry returned to the Jetson-hosted DroneOS runtime
+
+This validates the intended separation between mission compute and flight execution in Lab/SITL. It does not replace physical hardware evidence.
 
 ## Next Milestones
 
-### Phase 8 — Vehicle Agent Lite + Real Camera Path 🔜
+### Phase 9 — Vehicle Agent Lite + Real Camera Path 🔜
 - run a real onboard Vehicle Agent Lite process
-- bind camera captures to the exact mission execution identity
+- bind camera captures to exact mission execution identity
 - transfer datasets over the real vehicle↔Field Box network path
-- preserve checksum, manifest and authority guarantees across the physical transport boundary
+- preserve checksum, manifest and authority guarantees
 - validate restart/cancellation/failure behavior
 
-### Phase 9 — PX4 Hardware Bench 🔜
+### Phase 10 — PX4 Hardware Bench 🔜
 - connect real PX4 autopilot hardware
 - no-props validation
 - MAVLink telemetry and mission upload
 - failsafe and RC/manual recovery verification
-- power/network/Field Box operational checks
+- Field Box power/network operational checks
 
-### Phase 10 — First Controlled Physical Flight
+### Phase 11 — First Controlled Physical Flight
 - simple bounded waypoint validation first
 - operator supervision and manual recovery path available
 - collect PX4 logs and DroneOS workflow telemetry
 - compare real behavior against SITL assumptions
 
-### Phase 11 — Physical Solar Recon → Inspection Workflow
+### Phase 12 — Physical Solar Recon → Inspection Workflow
 - real Flight A capture
 - Field Box Recon analysis
 - operator-reviewed Inspection proposal
@@ -108,7 +120,7 @@ This integration line remains subject to promotion into the stable baseline afte
 - real evidence transfer
 - local report generation
 
-### Phase 12 — Pilot-Quality Solar Evaluation
+### Phase 13 — Pilot-Quality Solar Evaluation
 - real solar-site dataset
 - panel mapping accuracy metrics
 - capture completeness metrics
@@ -116,7 +128,7 @@ This integration line remains subject to promotion into the stable baseline afte
 - customer-readable report quality
 - repeatability across multiple missions/sites
 
-### Phase 13 — Thermal / Defect Detection R&D
+### Phase 14 — Thermal / Defect Detection R&D
 Only after the physical data pipeline is stable:
 
 - thermal payload integration
@@ -125,19 +137,23 @@ Only after the physical data pipeline is stable:
 - confidence/calibration and human review
 - edge inference optimization
 
-No production defect-detection claim should precede measured validation.
+### Phase 15 — Mission Orchestration Platform Expansion
+Only after the local Solar workflow is physically proven:
 
-### Phase 14 — Cloud / Fleet Platform
-After local Field Box operation is dependable:
+- richer detection/world-model providers
+- event-driven mission proposals
+- multiple mission types and sites
+- optional cloud synchronization and fleet analytics
+- later support for other verticals such as wind, infrastructure, agriculture, search and rescue or logistics
 
-- optional report synchronization
-- fleet analytics
-- multi-site management
-- centralized model/data lifecycle
-- customer APIs and business integrations
+These are platform directions, not current commercial claims.
 
 ## Strategic Product Direction
-Solar inspection is the first vertical used to prove the platform architecture. The longer-term direction is a reusable mission operations platform for inspection, infrastructure, logistics and other autonomous drone workflows, while preserving a strict boundary between mission intelligence and PX4 flight control.
+Solar inspection is the first vertical used to prove the platform architecture. The longer-term direction is a reusable mission-orchestration core built around the same controlled loop:
+
+**observe → understand → propose → validate → execute → prove**
+
+The platform can become more capable without moving flight-control authority out of PX4.
 
 ## Validation Principles
 Every milestone should continue to require:
@@ -148,13 +164,13 @@ Every milestone should continue to require:
 - SITL before physical flight for changed flight-facing behavior
 - documented limitations and non-claims
 - operator recovery path
-- immutable or auditable provenance where workflow decisions depend on prior data
+- auditable provenance where workflow decisions depend on prior data
 
 ## Public Claims
 Current public positioning should say:
 
-- integrated engineering prototype
-- Jetson Field Box engineering baseline validated
-- real PX4 SITL two-flight Solar workflow validated
-- backend Recon→Inspection→Report workflow integrated
-- physical flight, production camera pipeline, certification and commercial readiness are still pending
+- advanced engineering prototype / pre-field-validation
+- integrated Solar Recon→Inspection→Report workflow
+- real PX4 SITL two-flight execution validated
+- distributed NVIDIA Jetson Field Box validation completed
+- physical flight, production camera pipeline, certification and commercial readiness remain pending
