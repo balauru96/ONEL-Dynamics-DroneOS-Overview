@@ -7,9 +7,9 @@ DroneOS is a **local-first, modular mission-orchestration and evidence platform 
 
 DroneOS is intentionally not a low-level flight controller. The platform is designed so that operator interfaces, AI/perception providers and vertical workflows can evolve without inheriting direct actuator authority.
 
-The first product vertical is a two-flight Solar inspection workflow:
+The first product vertical is **Solar Inspection**, implemented as a two-flight workflow:
 
-**Flight A Recon → trusted post-flight processing → PanelMap → Inspection proposal → Flight B Inspection → evidence → report**
+**Flight A Recon → trusted post-flight processing → PanelMap → Inspection proposal → operator confirmation → Flight B Inspection → evidence → report**
 
 ![DroneOS-Core modular layer model](docs/assets/droneos-core-layers.svg)
 
@@ -55,6 +55,57 @@ The Jetson-hosted DroneOS Field Box successfully connected to remote PX4 SITL, u
 ![Distributed Field Box validation](docs/assets/fieldbox-distributed-validation.svg)
 
 This materially reduces deployment risk for the pre-pilot phase, but it **does not constitute physical UAV validation or certification**.
+
+## Solar Inspection — First Product Workflow
+Solar is the first vertical because it forces DroneOS-Core to prove an entire mission/evidence loop, not just a waypoint mission.
+
+![DroneOS Solar Inspection workflow](docs/assets/solar-inspection-workflow.svg)
+
+The Solar workflow follows:
+
+**discover → understand → propose → approve → inspect → prove**
+
+### Flight A — Recon / Mapping
+DroneOS prepares and stages a Solar Recon mission. PX4 executes the mission in AUTO. After landing, the Recon dataset is transferred through a trusted-ingestion boundary where identity, schema, paths, telemetry association and checksums are validated before the dataset is accepted.
+
+The accepted Recon dataset is then processed into an authoritative `PanelMap` through the perception/world-model layer.
+
+### PanelMap — Turning Images into Site Context
+`PanelMap` is the semantic bridge between raw captures and mission planning. The intent is not to convert a 2D detection directly into a waypoint. Detections are associated with context, projected into world coordinates and fused into a structural model of the site.
+
+### Inspection Proposal — Proposal, Not Command
+From the authoritative `PanelMap`, DroneOS generates a non-executable Solar Inspection proposal. The proposal is bound to exact workflow provenance and a fingerprint.
+
+The operator confirms the **exact proposal**. The server revalidates current authority before Flight B can be staged.
+
+> **AI / analysis may propose; DroneOS validates; the operator confirms; PX4 executes.**
+
+### Flight B — Targeted Inspection
+PX4 then executes the derived Solar Inspection mission in AUTO. The resulting Inspection dataset is again validated and bound to the exact Flight B execution.
+
+### Evidence, Findings and Report
+The accepted Inspection dataset is transformed into `InspectionEvidence`, findings and a canonical `SolarInspectionReport` while preserving lineage back to Recon, PanelMap, proposal and both mission executions.
+
+The product goal is not only to answer **“what was found?”**, but also **“which exact mission and dataset produced this result?”**
+
+### Current Solar Validation Status
+Validated today:
+
+- deterministic software composition from Recon to final report
+- real PX4 SITL Flight A Recon
+- real PX4 SITL Flight B Inspection
+- A→B workflow orchestration around real PX4 SITL execution
+- trusted identity/provenance model
+- distributed Jetson Field Box architecture
+
+Still pending:
+
+- real onboard camera + Vehicle Agent Lite end-to-end path
+- physical UAV flight validation
+- real-site PanelMap accuracy evaluation
+- production RGB/thermal defect-detection validation
+
+For the full product-level workflow and limitations, see [Solar Inspection MVP](docs/solar_inspection_mvp.md).
 
 ## What Has Been Proven
 The current system has validated an architecture-faithful flow across software and real PX4 SITL:
@@ -139,26 +190,6 @@ Drone + Payload
 ```
 
 PX4 owns attitude stabilization, vehicle control and core flight safety. DroneOS operates above that boundary as the mission, workflow, data and operator layer.
-
-## Solar Inspection MVP
-The current Solar MVP uses two separate flights rather than one monolithic autonomous mission.
-
-**Flight A – Recon / Mapping**
-- capture site imagery
-- post-flight transfer to Field Box
-- dataset integrity and mission-identity validation
-- panel detection/projection/fusion
-- `PanelMap` generation
-
-**Operator boundary**
-- generate the exact Inspection proposal
-- require explicit proposal-specific confirmation before Flight B staging
-
-**Flight B – Inspection**
-- execute the derived inspection mission
-- collect inspection evidence
-- post-flight transfer and validation
-- findings and canonical report generation
 
 ## Next Milestones
 1. final review/hardening of the current integration line before promotion into `development`
