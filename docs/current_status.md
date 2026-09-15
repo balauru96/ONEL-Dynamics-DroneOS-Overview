@@ -1,137 +1,126 @@
 # Current Status
 
-> Public-safe status snapshot: **6 September 2026**.
+> Public-safe status snapshot: **15 September 2026**.
 
 ## Executive Status
-DroneOS is currently an **advanced engineering prototype / pre-field-validation platform** with an integrated Solar inspection workflow, real PX4 SITL two-flight execution and a distributed NVIDIA Jetson Field Box validation.
+DroneOS is currently an **integrated technical MVP / pre-physical-validation platform** with a canonical Solar Recon→Inspection→Report workflow, real PX4 SITL two-flight execution, a target-hardware NVIDIA Jetson Field Box validation and a redesigned operator dashboard.
 
-The private engineering source of truth is `DroneOS-Core`. Active integration work is reviewed and hardened before promotion into the `development` baseline and later into stable `main` releases.
+The private engineering source of truth is `DroneOS-Core`. PX4 remains the flight authority. DroneOS remains the mission, workflow, data, operator and reporting layer above PX4.
 
-PX4 remains the flight authority. DroneOS remains the mission, workflow, data, operator and reporting layer above PX4.
+The key September milestone is that the **complete canonical Solar software workflow has now been exercised end to end with DroneOS running on the Jetson Field Box**, while PX4 SITL/Gazebo runs remotely on a separate computer.
 
 ## Current Engineering Baseline
 
+### Canonical Solar Backend
+The current canonical backend flow covers:
+
+`Start Solar`
+→ Recon planning/staging
+→ Flight A PX4 execution
+→ Recon postflight acceptance
+→ `PanelMap`
+→ exact Inspection proposal
+→ operator confirmation
+→ Flight B staging
+→ Flight B PX4 execution
+→ Inspection postflight acceptance
+→ evidence/findings
+→ `REPORT_READY`
+→ canonical report
+
+The latest canonical Solar E2E backend milestone was validated with:
+
+- **1,885 Python safe tests passed**
+- **82 dashboard runtime checks passed** at that backend milestone
+- focused canonical workflow/report validation
+- real PX4/Gazebo Flight A and Flight B execution
+
 ### Field Box
-- NVIDIA Jetson Orin Nano Super validated as the primary Field Box platform
-- native ARM64 Docker build validated on Jetson
-- DroneOS runtime validated as non-root
-- authenticated API and LAN/WebSocket access validated
-- Jetson-hosted DroneOS connected to PX4 SITL on a separate computer over LAN
-- remote mission upload/start validated through the normal PX4/MAVSDK mission path
-- live telemetry returned to the Jetson-hosted DroneOS runtime
-- Docker remains scoped to DroneOS backend/dashboard; PX4 and Gazebo remain outside the container
+Validated on **NVIDIA Jetson Orin Nano Super**:
+
+- ARM64 runtime
+- native Docker baseline and non-root execution
+- authenticated API and WebSocket over LAN
+- remote PX4/MAVSDK connection over LAN
+- mission upload/start and live telemetry return
+- complete Solar software E2E through both flights and canonical report
+- explicit deterministic Recon/Inspection demo providers used for the current simulator data lane
 
 See [Field Box Validation](fieldbox_validation.md).
 
-### Test / Quality Baseline
-Latest merged `development2` Solar workflow milestone:
+### Operator Dashboard
+The current dashboard redesign has been validated on Jetson and laptop with **83 dashboard runtime checks**.
 
-- **1,682 Python safe tests passed**
-- **49 dashboard runtime checks passed**
-- deterministic safe-test lane and GitHub CI are part of the engineering workflow
+Validated UI direction:
 
-The safe test lane is strong software evidence but does not replace hardware validation.
+- Solar workflow is the primary operator workspace
+- visual Setup→Recon→Process→Review→Inspection→Report stepper
+- contextual Solar actions
+- always-visible flight, recovery, command and vehicle-status controls
+- dominant map/HUD workspace
+- non-routine tools moved into Advanced sections
+- credential-free OpenStreetMap basemap for the current MVP/demo setup
 
-### PX4 / SITL Validation
-Validated with real PX4 SITL + Gazebo + MAVSDK:
+This UI work changes presentation and operator hierarchy only; it does not change PX4 command behavior, mission authority, StateService or Solar backend semantics.
 
-- Flight A `SOLAR_RECON`
-- mission upload/start/progress observation
-- completion reconciliation
-- LAND and landed/disarmed terminal handoff
-- Recon processing into `PanelMap`
-- exact Inspection proposal generation and operator-confirmed staging
-- Flight B `SOLAR_INSPECTION`
-- second real AUTO mission execution
-- terminal handoff
-- Inspection dataset processing
-- canonical Solar Inspection report generation
-
-The current A→B→Report SITL integration uses real PX4 mission execution for both flights. Deterministic local fixtures are still used for parts of the camera/media/detection/evidence path.
+See [Operator Dashboard Validation](operator_dashboard_validation.md).
 
 ## Solar Workflow Status
-The current backend workflow covers:
+The software workflow is now validated end to end on the target Field Box platform:
 
-`Flight A Recon`
-→ trusted post-flight dataset acceptance
-→ Recon analysis
-→ `PanelMap`
-→ immutable provenance
-→ exact Inspection proposal
-→ explicit operator confirmation
-→ Flight B staging
-→ real SITL Flight B execution
-→ Inspection dataset acceptance
-→ evidence/findings
-→ canonical report
+- workflow creation and exact identity binding
+- Flight A Recon staging/execution
+- trusted Recon handoff/acceptance
+- Recon analysis → `PanelMap`
+- immutable provenance
+- exact Inspection proposal
+- explicit operator confirmation
+- Flight B staging/execution
+- trusted Inspection handoff/acceptance
+- evidence/findings
+- canonical report publication
 
-Recent workflow work also includes:
-
-- immutable workflow/provenance ledger
-- workflow read-model API
-- workflow-aware Recon mission identity binding
-- trusted Recon ingestion wired into workflow runtime
-- fail-closed identity mismatch/recovery behavior
-- real PX4/Gazebo Solar A→B observability work under review
-
-## DroneOS-Core Position
-DroneOS-Core is designed as a modular mission-intelligence core rather than one monolithic application.
-
-Its logical responsibilities are separated into:
-
-1. Operator / API / Mission Control
-2. Mission & Workflow Orchestration
-3. Authority / State / Safety
-4. Flight Integration
-5. Data / Evidence / Provenance
-6. Perception / World Model
-7. Vertical Applications
-
-The architectural rule is that UI or AI does not automatically become authority. Operator and perception layers may propose; DroneOS validates current identity/state/safety; PX4 executes the aircraft.
-
-## Vision / AI Status
-- optional offline Ultralytics YOLO adapter exists behind the Solar detector boundary
-- verified external model loading has been demonstrated in a smoke test
-- perception output is non-authoritative and feeds structured world-modeling / proposal generation
-- current real-SITL A→B workflow does **not** claim production camera inference
-- no validated thermal defect detector is claimed
-- no survey-grade mapping accuracy is claimed
+Important: the current full E2E lane uses **real PX4 SITL execution** for both flights but **deterministic demo sensor/media data** for Recon and Inspection postflight inputs.
 
 ## Readiness Assessment
 
 | Component | Status | Notes |
 |---|---|---|
-| Core mission/safety architecture | Advanced prototype | Authority-aware lifecycle, identity and recovery boundaries |
-| Jetson Field Box | **Distributed validated** | ARM64, Docker, auth, LAN, remote PX4 and telemetry return |
-| Docker Field Box | Validated baseline | DroneOS backend/dashboard only |
-| Solar offline E2E | Validated | Deterministic Recon→Report composition |
-| Real PX4 SITL Flight A→B | Validated | Both missions execute through real PX4 SITL/MAVSDK AUTO |
-| Backend A→B→Report workflow | Integrated | Provenance/read model/ingestion present in current development line |
-| Vehicle Agent Lite | Simulated/local | Physical onboard network/camera path not yet validated |
-| PX4 hardware bench | Pending | Next hardware boundary |
-| Real camera end-to-end capture | Pending | Required before field pilot |
-| Physical flight | Pending | First controlled real-aircraft flight remains ahead |
-| Thermal defect detection | R&D | Not validated |
-| Commercial operations | Not ready | Requires field validation, regulatory work and pilot evidence |
+| Core mission/safety architecture | Advanced / validated software baseline | Authority-aware lifecycle, identity and recovery boundaries |
+| Solar backend E2E | **Validated** | Canonical Recon→Inspection→Report flow |
+| Jetson Field Box | **Full software E2E validated** | Complete Solar flow on target edge computer with remote PX4 SITL |
+| Operator dashboard | **Validated review baseline** | New mission-control UI tested on Jetson/laptop; final integration review ongoing |
+| Real PX4 SITL Flight A→B | **Validated** | Both missions execute via PX4/MAVSDK AUTO |
+| Trusted provenance/reporting | **Validated software baseline** | Exact workflow/mission/data lineage |
+| Vehicle Agent Lite | Simulated/local | Real onboard process/network path pending |
+| Real camera end-to-end capture | Pending | Next physical data boundary |
+| PX4 hardware bench | Pending | No-props validation next |
+| Physical flight | Pending | No real-aircraft flight claim yet |
+| Real Solar site workflow | Pending | Physical Recon→Inspection evidence still required |
+| Thermal defect detection | R&D | Not production-validated |
+| Commercial operations | Not ready | Field/regulatory/pilot evidence still required |
 
-## Known Limitations
+## Current Limitations
 - no physical-aircraft flight validation yet
-- no real Vehicle Agent/camera/network pipeline validated end to end
-- parts of the SITL media/detection/evidence path still use deterministic fixtures
-- workflow/mission authority is not fully restart-durable in every path
-- no production-grade thermal/defect detector
-- no certification or commercial-operation validation
+- no real Vehicle Agent Lite + camera + vehicle-network pipeline validated end to end
+- deterministic demo media/data is still used in the current full simulator lane
+- no survey-grade PanelMap accuracy claim
+- no production RGB/thermal defect detector claim
+- full process-restart durability is not yet complete for every in-memory workflow artifact
+- no certification or commercial-operation claim
+
+## Current Product Position
+The correct current positioning is:
+
+> **DroneOS is an integrated technical MVP entering physical validation: the canonical Solar Recon→Inspection→Report workflow runs end to end on the NVIDIA Jetson Field Box around real PX4 SITL mission execution, with a validated operator dashboard and explicit deterministic demo sensor data. Physical UAV/camera validation, certification and commercial readiness remain pending.**
 
 ## Next Validation Boundary
-The next major step is **hardware-backed field integration**:
+The next major step is **hardware-backed physical validation**:
 
-1. Vehicle Agent Lite + real camera/data path
-2. PX4 hardware no-props bench validation
+1. real Vehicle Agent Lite + camera/data path
+2. PX4 hardware no-props bench
 3. controlled first physical flight
-4. physical Recon→Inspection two-flight workflow
-5. pilot-quality Solar mapping/report evaluation
-
-## Public Claim
-The correct current public claim is:
-
-> **DroneOS is an advanced, safety-oriented engineering prototype for PX4-based mission operations, with an integrated Solar Recon→Inspection→Report workflow, real PX4 SITL execution and a distributed NVIDIA Jetson Field Box validation. Physical UAV validation, certification and commercial readiness remain pending.**
+4. physical Flight A Recon + trusted transfer
+5. real PanelMap + operator-reviewed Flight B proposal
+6. physical Flight B Inspection
+7. real evidence/report and repeatability evaluation

@@ -1,6 +1,6 @@
 # Safety and Validation Notes
 
-> Updated: **6 September 2026**.
+> Updated: **15 September 2026**.
 >
 > Public-safe overview. This is not an operational flight manual, certification package or regulatory approval.
 
@@ -27,12 +27,12 @@ Normal commands require demonstrable current state. Stale, missing or divergent 
 
 Protected context includes:
 
-- mission and geofence revisions
-- uploaded mission fingerprint
+- mission/geofence revisions
+- uploaded mission identity/fingerprint
 - execution and terminal-handoff identity
 - recovery generation
 - dataset acceptance
-- proposal and workflow identity
+- proposal/workflow identity
 - telemetry freshness and validity
 
 The principle is simple: **unknown state does not authorize a normal command.**
@@ -40,65 +40,39 @@ The principle is simple: **unknown state does not authorize a normal command.**
 ## Recovery Remains Separate
 Fail-closed normal logic must not make recovery impossible.
 
-LAND / RTL and manual recovery paths are treated separately from normal mission progression so that a rejected normal command does not become a reason to block a safe exit path. Recovery is still constrained by explicit recovery semantics; it is not a generic bypass around mission authority.
+LAND / RTL and manual recovery paths are treated separately from normal mission progression. The current operator dashboard keeps recovery/interrupt controls visible while the backend remains authoritative.
 
 ## Geofence, No-Fly and Obstacle Avoidance Are Different
-These concepts must not be conflated:
-
 - DroneOS route/no-fly validation checks planned geometry and can provide runtime warnings.
-- PX4 geofence/failsafe behavior belongs to the flight-controller safety layer.
-- Dynamic obstacle avoidance or automatic replanning around obstacles is a separate future capability.
+- PX4 geofence/failsafe behavior belongs to the flight-controller layer.
+- Dynamic obstacle avoidance/replanning is a separate future capability.
 
 DroneOS currently makes **no dynamic obstacle-avoidance claim**.
 
 ## Current Validated Safety-Relevant Evidence
-As of 6 September 2026:
+As of 15 September 2026:
 
 - fail-closed mission/workflow identity gates are implemented and covered by deterministic tests
-- real PX4 SITL Flight A → Flight B mission execution has been demonstrated
-- distributed NVIDIA Jetson Field Box ↔ PX4 SITL communication has been validated over LAN
-- authenticated API and WebSocket access have been validated in the local/LAN deployment model
-- remote PX4 mission upload/start and live telemetry return have been demonstrated
-- PX4 remains flight authority throughout the architecture
+- canonical Solar E2E backend validation reached **1,885 Python safe tests passed**
+- real PX4 SITL Flight A → Flight B execution has been demonstrated
+- full canonical Solar software E2E has been demonstrated with DroneOS running on Jetson
+- authenticated API/WebSocket access is validated in the local/LAN deployment model
+- redesigned operator UI preserves backend authority and keeps recovery controls visible
+- PX4 remains flight authority throughout
 
 These results are meaningful software/Lab/SITL evidence, but they are **not physical-flight validation or certification**.
-
-## Current Security Position
-The current local/LAN deployment baseline includes authentication and protected API/WebSocket access.
-
-Production deployment hardening still requires items such as:
-
-- secret management
-- secure transport or tunneling where appropriate
-- audit logging
-- least privilege
-- update policy
-- separation of development and field credentials
-- operational key/credential rotation procedures
-
-No production-security certification is claimed.
-
-## Physical Validation Still Required
-Before pilot-quality autonomous operation can be claimed, the project still needs:
-
-1. real PX4 hardware / no-props bench validation
-2. real Vehicle Agent Lite + camera/data path
-3. controlled physical flight
-4. physical Recon capture and trusted transfer
-5. physical Flight B inspection
-6. repeatability and recovery evidence across multiple runs
-7. site-specific operational and regulatory assessment
 
 ## Solar-Specific Safety Boundary
 For the Solar workflow:
 
 1. Flight A discovers the site.
-2. Trusted Recon ingestion verifies and accepts the dataset.
-3. Analysis produces the authoritative `PanelMap`.
+2. trusted Recon ingestion verifies/accepts the dataset.
+3. analysis produces the authoritative `PanelMap`.
 4. DroneOS generates a **non-executable** Inspection proposal.
-5. The operator confirms the exact proposal fingerprint.
-6. DroneOS revalidates current workflow/mission authority.
-7. Only then can Flight B be staged for PX4 execution.
+5. the operator confirms the exact proposal.
+6. DroneOS revalidates current authority.
+7. Flight B is staged.
+8. a separate operator action starts Flight B through the normal PX4 path.
 
 The intended boundary is:
 
@@ -106,19 +80,46 @@ The intended boundary is:
 
 AI/perception does not directly start Flight B and does not receive actuator authority.
 
+## Demo Data Isolation
+The current full simulator/Jetson E2E uses explicit deterministic demo providers for Recon and Inspection data.
+
+This distinction is intentional:
+
+- demo providers are enabled explicitly for validation
+- production/default behavior must not silently fabricate trusted sensor data
+- successful software E2E does not imply real sensor validation
+
+## Current Security Position
+The local/LAN baseline includes authentication and protected API/WebSocket access.
+
+Production hardening still requires:
+
+- secret management
+- secure transport/tunneling where appropriate
+- audit logging
+- least privilege
+- update policy
+- separation/rotation of field credentials
+
+No production-security certification is claimed.
+
+## Physical Validation Still Required
+Before pilot-quality autonomous operation can be claimed, the project still needs:
+
+1. real PX4 hardware no-props bench validation
+2. real Vehicle Agent Lite + camera/data path
+3. controlled physical flight
+4. physical Recon capture/trusted transfer
+5. physical Flight B Inspection
+6. repeatability/recovery evidence across multiple runs
+7. site-specific operational and regulatory assessment
+
 ## Validation Ladder
-DroneOS follows an evidence ladder rather than treating one test class as proof of every layer:
+DroneOS follows an evidence ladder:
 
-**deterministic tests → real PX4 SITL → distributed Field Box validation → PX4 hardware bench → controlled physical flight → Solar site pilot**
+**deterministic tests → real PX4 SITL → full Jetson Field Box E2E → PX4 hardware bench → controlled physical flight → Solar site pilot**
 
-Each stage answers a different engineering question. Passing one stage does not replace the next.
+Passing one stage does not replace the next.
 
 ## Public Claim
-> **DroneOS is an advanced engineering prototype with safety-oriented authority boundaries validated in software, real PX4 SITL and distributed Jetson Lab/SITL. Physical UAV validation, certification and commercial operational readiness remain pending.**
-
-## Related Documentation
-- [Current Status](current_status.md)
-- [Architecture Overview](architecture_overview.md)
-- [Field Box Validation](fieldbox_validation.md)
-- [Solar Inspection MVP](solar_inspection_mvp.md)
-- [Roadmap](roadmap.md)
+> **DroneOS is an integrated technical MVP with safety-oriented authority boundaries validated in software, real PX4 SITL and full Jetson Field Box E2E. Physical UAV/camera validation, certification and commercial operational readiness remain pending.**

@@ -27,12 +27,12 @@
     <rect x="970" y="340" width="360" height="118" rx="16" fill="#318bbd"/>
     <text x="995" y="375" font-size="18" font-weight="700" fill="#0b1f3a">PROPOSE</text>
     <text x="995" y="410" font-size="24" font-weight="700" fill="#0b1f3a">Inspection Proposal</text>
-    <text x="995" y="437" font-size="17" fill="#0b1f3a">route derived from exact PanelMap provenance</text>
+    <text x="995" y="437" font-size="17" fill="#0b1f3a">derived from exact PanelMap provenance</text>
 
     <rect x="520" y="340" width="360" height="118" rx="16" fill="#b7ddeb"/>
     <text x="545" y="375" font-size="18" font-weight="700" fill="#0b1f3a">AUTHORITY GATE</text>
     <text x="545" y="410" font-size="24" font-weight="700" fill="#0b1f3a">Operator Confirmation</text>
-    <text x="545" y="437" font-size="17" fill="#0b1f3a">exact proposal fingerprint revalidated server-side</text>
+    <text x="545" y="437" font-size="17" fill="#0b1f3a">stages Flight B only · separate Start Flight action</text>
 
     <rect x="70" y="340" width="360" height="118" rx="16" fill="#123f69"/>
     <text x="95" y="375" font-size="18" font-weight="700" fill="#bfe7f7">FLIGHT B</text>
@@ -70,7 +70,7 @@
 
     <rect x="70" y="700" width="1260" height="82" rx="14" fill="#e9eef5" stroke="#c3cfdb"/>
     <text x="95" y="735" font-size="19" font-weight="700" fill="#0b1f3a">Evidence chain</text>
-    <text x="245" y="735" font-size="17" fill="#34495e">Recon execution → accepted Recon dataset → PanelMap → exact proposal → Flight B execution → accepted Inspection dataset → findings → report</text>
-    <text x="95" y="765" font-size="15" fill="#6b7785">Current mission execution is validated in PX4 SITL; physical camera/vehicle transfer and real-aircraft validation remain pending.</text>
+    <text x="245" y="735" font-size="17" fill="#34495e">Recon execution → accepted Recon dataset → PanelMap → proposal → Flight B → Inspection dataset → findings → report</text>
+    <text x="95" y="765" font-size="15" fill="#6b7785">Full software E2E validated on Jetson with real PX4 SITL execution; physical camera/aircraft validation remains pending.</text>
   </g>
 </svg>

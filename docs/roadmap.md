@@ -1,13 +1,13 @@
 # Development Roadmap
 
-> Updated: **6 September 2026**.
+> Updated: **15 September 2026**.
 
-DroneOS development is organized around validation gates rather than feature count. PX4 remains flight authority; DroneOS evolves as the mission, workflow, data and operator layer above it.
+DroneOS development is organized around **validation gates**, not feature count. PX4 remains flight authority; DroneOS evolves as the mission, workflow, data and operator layer above it.
 
 ## Current Phase
-**Integrated Solar MVP + real PX4 SITL + distributed Jetson Field Box validation → hardware-backed field integration.**
+**Integrated technical MVP validated on Jetson → physical hardware integration and field validation.**
 
-The earlier Lab/SITL stabilization, Jetson bootstrap and first two-flight simulator milestones have been reached. The next major boundary is physical vehicle/camera integration and controlled flight validation.
+The simulator/software composition problem is no longer the primary unknown. The next major unknown is whether the same architecture remains reliable across real flight-controller hardware, onboard compute, camera timing, network transfer and controlled aircraft operation.
 
 ## Completed / Validated Milestones
 
@@ -18,142 +18,155 @@ The earlier Lab/SITL stabilization, Jetson bootstrap and first two-flight simula
 - deterministic safe-test lane and CI
 
 ### Phase 2 — Jetson Field Box Baseline ✅
-- NVIDIA Jetson Orin Nano Super selected as primary Field Box platform
+- NVIDIA Jetson Orin Nano Super selected as primary Field Box
 - ARM64 runtime validated
-- native Docker build validated
-- non-root runtime validated
+- Docker/non-root baseline validated
 - authenticated local/LAN operation validated
 
 ### Phase 3 — Solar Data Contracts and Reporting ✅
 - Recon capture/replay contracts
-- Inspection evidence and findings contracts
-- deterministic SolarInspectionReport
-- strict manifest/media integrity validation
-- SHA-256 integrity checks
+- Inspection evidence/findings contracts
+- canonical Solar report
+- manifest/path/checksum validation
+- trusted ingestion boundaries
 
-### Phase 4 — Solar Vision / Mapping Prototype ✅
+### Phase 4 — Solar Perception / World-Model Prototype ✅
 - detector abstraction
 - optional offline YOLO adapter
-- image-to-ground projection
-- deterministic cross-frame panel fusion
-- PanelMap generation
-- InspectionPlan generation
+- image-to-ground projection support
+- deterministic cross-frame fusion
+- `PanelMap` generation
+- Inspection proposal generation
 
 No survey-grade mapping claim is made.
 
 ### Phase 5 — Deterministic Solar E2E ✅
-Validated offline:
+Validated software composition:
 
-Recon
-→ data handoff
-→ detection/projection/fusion
-→ PanelMap
-→ InspectionPlan
-→ Inspection mission
-→ evidence/findings
-→ report
+Recon → trusted acceptance → analysis → PanelMap → proposal → confirmation → Inspection → evidence → findings → report
 
 ### Phase 6 — Real PX4 SITL Flight A → Flight B ✅
-Validated through real PX4 SITL / Gazebo / MAVSDK AUTO execution:
+Validated through real PX4 SITL / Gazebo / MAVSDK AUTO:
 
-- Flight A Solar Recon
-- completion + LAND + terminal handoff
-- Recon analysis → PanelMap
+- Flight A `SOLAR_RECON`
+- completion + terminal handoff
+- Recon analysis → `PanelMap`
 - exact Inspection proposal
-- explicit operator confirmation
-- Flight B Solar Inspection
+- operator confirmation
+- Flight B `SOLAR_INSPECTION`
 - completion + terminal handoff
 
-### Phase 7 — Integrated A→B→Report Workflow Backend ✅ / ACTIVE HARDENING
-Implemented in the current development line:
+### Phase 7 — Canonical A→B→Report Backend ✅
+Completed and promoted into the current canonical backend baseline:
 
-- immutable Solar workflow/provenance ledger
-- accepted Recon → PanelMap → Inspection proposal workflow service
-- exact operator-confirmation/staging boundary
-- Inspection dataset → findings → canonical report workflow service
-- workflow read model/API
-- exact Recon mission/workflow identity binding
-- trusted Recon ingestion wired into workflow processing
-- real PX4 SITL A→B→Report integration gate
+- workflow/provenance ledger
+- exact workflow/read-model identity
+- server-owned Recon and Inspection postflight processing
+- explicit demo-data providers isolated from production/default behavior
+- canonical `REPORT_READY` state
+- authenticated exact-workflow report endpoint
+- operator confirmation stages Flight B only; it never auto-launches Flight B
+- **1,885 Python safe tests passed** on the completed milestone
 
-Promotion into stable baselines remains gated by review and regression validation.
+### Phase 8 — Full Jetson Field Box Solar E2E ✅
+Validated on the target edge computer:
 
-### Phase 8 — Distributed Field Box Validation ✅
-Validated in September 2026:
-
-- DroneOS running natively on NVIDIA Jetson Orin Nano / ARM64
-- Docker non-root runtime
-- authenticated API + WebSocket over LAN
+- DroneOS running on NVIDIA Jetson Orin Nano Super
 - PX4 SITL + Gazebo on a separate computer
-- remote PX4 mission upload/start over LAN
-- live mission telemetry returned to the Jetson-hosted DroneOS runtime
+- LAN MAVLink/MAVSDK mission execution
+- live telemetry return
+- full Solar operator flow from workflow creation through canonical report
+- both PX4 missions executed through real SITL
+- deterministic Recon/Inspection demo data used for the sensor/media lane
 
-This validates the intended separation between mission compute and flight execution in Lab/SITL. It does not replace physical hardware evidence.
+### Phase 9 — Operator Dashboard MVP ✅ / FINAL REVIEW
+Validated on Jetson and laptop:
+
+- Solar-first operator workspace
+- visual workflow stepper
+- clearer action hierarchy
+- always-visible flight/recovery/status controls
+- dominant map/HUD
+- Advanced grouping for non-routine tools
+- credential-free MVP basemap
+- **83 dashboard runtime checks passed**
+
+This phase is UI/UX-only; backend/flight authority is unchanged. Final integration review remains separate from the successful Jetson validation.
 
 ## Next Milestones
 
-### Phase 9 — Vehicle Agent Lite + Real Camera Path 🔜
-- run a real onboard Vehicle Agent Lite process
-- bind camera captures to exact mission execution identity
+### Phase 10 — Vehicle Agent Lite + Real Camera Path 🔜
+- run Vehicle Agent Lite on real onboard compute
+- connect/calibrate the first real camera
+- bind captures to exact mission execution identity
 - transfer datasets over the real vehicle↔Field Box network path
-- preserve checksum, manifest and authority guarantees
-- validate restart/cancellation/failure behavior
+- preserve manifest/checksum/authority guarantees
+- validate retry, interruption and failure behavior
 
-### Phase 10 — PX4 Hardware Bench 🔜
-- connect real PX4 autopilot hardware
-- no-props validation
-- MAVLink telemetry and mission upload
-- failsafe and RC/manual recovery verification
-- Field Box power/network operational checks
+### Phase 11 — PX4 Hardware Bench 🔜
+- integrate real PX4-compatible flight-controller hardware
+- no-props validation first
+- telemetry and mission upload
+- power/network checks
+- RC/manual recovery verification
+- failsafe behavior documented before flight
 
-### Phase 11 — First Controlled Physical Flight
-- simple bounded waypoint validation first
+### Phase 12 — First Controlled Physical Flight
+- bounded waypoint mission first
 - operator supervision and manual recovery path available
-- collect PX4 logs and DroneOS workflow telemetry
-- compare real behavior against SITL assumptions
+- capture PX4 logs and DroneOS telemetry
+- compare physical behavior against SITL assumptions
 
-### Phase 12 — Physical Solar Recon → Inspection Workflow
-- real Flight A capture
-- Field Box Recon analysis
-- operator-reviewed Inspection proposal
-- real Flight B execution
-- real evidence transfer
-- local report generation
+### Phase 13 — Physical Solar Flight A Recon
+- real Recon route
+- real camera capture
+- real Vehicle Agent Lite dataset finalization
+- trusted transfer to Field Box
+- real-data `PanelMap`
 
-### Phase 13 — Pilot-Quality Solar Evaluation
-- real solar-site dataset
+### Phase 14 — Physical Solar Flight B Inspection
+- generate proposal from real Recon result
+- operator review/confirmation
+- real Inspection flight
+- trusted Inspection transfer
+- evidence/findings/report
+
+### Phase 15 — Pilot-Quality Solar Evaluation
+- repeatability across multiple runs
 - panel mapping accuracy metrics
-- capture completeness metrics
-- workflow reliability / failure recovery metrics
+- capture completeness
+- workflow reliability/failure recovery
 - customer-readable report quality
-- repeatability across multiple missions/sites
+- pilot/LOI/customer feedback
 
-### Phase 14 — Thermal / Defect Detection R&D
-Only after the physical data pipeline is stable:
+### Phase 16 — Thermal / Defect Detection R&D
+Only after the physical RGB/data path is stable:
 
 - thermal payload integration
-- measured defect detection baseline
-- labeled dataset and evaluation methodology
+- labeled defect dataset
+- measured detection baseline
 - confidence/calibration and human review
 - edge inference optimization
 
-### Phase 15 — Mission Orchestration Platform Expansion
-Only after the local Solar workflow is physically proven:
+### Phase 17 — Platform Expansion
+Only after physical Solar proof:
 
-- richer detection/world-model providers
+- richer world-model providers
 - event-driven mission proposals
-- multiple mission types and sites
-- optional cloud synchronization and fleet analytics
-- later support for other verticals such as wind, infrastructure, agriculture, search and rescue or logistics
+- multiple sites/mission types
+- optional fleet/cloud synchronization
+- later verticals such as wind, infrastructure, agriculture, search and rescue, logistics and dock-based operations
 
 These are platform directions, not current commercial claims.
 
-## Strategic Product Direction
-Solar inspection is the first vertical used to prove the platform architecture. The longer-term direction is a reusable mission-orchestration core built around the same controlled loop:
+## Strategic Rule for the Next Phase
+The project should now resist unnecessary software scope expansion.
 
-**observe → understand → propose → validate → execute → prove**
+The highest-value sequence is:
 
-The platform can become more capable without moving flight-control authority out of PX4.
+**validated software baseline → real hardware bench → first flight → real Recon → real Inspection → real report → repeatable pilot evidence**
+
+New platform features should not displace this validation sequence unless they fix a true safety/blocking issue.
 
 ## Validation Principles
 Every milestone should continue to require:
@@ -161,16 +174,17 @@ Every milestone should continue to require:
 - explicit authority ownership
 - fail-closed identity handling
 - deterministic tests before hardware tests
-- SITL before physical flight for changed flight-facing behavior
+- SITL before physical flight for flight-facing changes
 - documented limitations and non-claims
 - operator recovery path
 - auditable provenance where workflow decisions depend on prior data
 
-## Public Claims
-Current public positioning should say:
+## Public Positioning
+Current public positioning:
 
-- advanced engineering prototype / pre-field-validation
-- integrated Solar Recon→Inspection→Report workflow
+- integrated technical MVP / pre-physical-validation
+- canonical Solar Recon→Inspection→Report E2E validated
+- full software workflow validated on NVIDIA Jetson Field Box
 - real PX4 SITL two-flight execution validated
-- distributed NVIDIA Jetson Field Box validation completed
-- physical flight, production camera pipeline, certification and commercial readiness remain pending
+- redesigned operator dashboard validated
+- physical aircraft/camera workflow, certification and commercial readiness remain pending
